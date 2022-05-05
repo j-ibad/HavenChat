@@ -4,11 +4,14 @@
   "description": "HavenChat -- A Secure Live Chatting Service",
   "main": "index.js",
   "scripts": {
-	"dev": "npm install && nodejs index.js"
+    "init": "npm install -y && nodejs model/init.js",
+	  
+    "dev": "npm install && nodejs index.js"
   },
   "author": "Josh Ibad & Winnie Pan",
   "license": "UNLICENSED",
   "dependencies": {
-    "express": "^4.18.1"
+    "express": "^4.18.1",
+    "mysql": "^2.18.1"
   }
 }
