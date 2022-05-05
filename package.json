@@ -1,0 +1,24 @@
+{
+  "name": "haven-chat",
+  "version": "1.0.0",
+  "description": "HavenChat -- A Secure Live Chatting Service",
+  "main": "index.js",
+  "scripts": {
+    "test-frontend": "npm --prefix ./haven-chat-frontend run test&",
+    "test-backend": "npm --prefix ./haven-chat-backend run test",
+    "test": "npm run test-frontend && npm run test-backend",
+	
+    "dev-frontend": "npm --prefix ./haven-chat-frontend run dev&",
+    "dev-backend": "npm --prefix ./haven-chat-backend run dev",
+    "dev": "npm run dev-frontend && npm run dev-backend",
+	
+    "prod-frontend": "npm --prefix ./haven-chat-frontend run prod&",
+    "prod-backend": "npm --prefix ./haven-chat-backend run prod",
+    "prod": "npm run prod-frontend && npm run prod-backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshcibad/HavenChat.git"
+  },
+  "author": "Josh Ibad, Winnie Pan"
+}
