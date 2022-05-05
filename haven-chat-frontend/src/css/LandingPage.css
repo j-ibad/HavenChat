@@ -1,20 +1,20 @@
-.App {
+.LandingPage {
   text-align: center;
 }
 
-.App-logo {
+.LandingPage-logo {
   height: 40vmin;
   pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+  .LandingPage-logo {
+    animation: LandingPage-logo-spin infinite 20s linear;
   }
 }
 
-.App-header {
-  background-color: #282c34;
+.LandingPage-header {
+  background-color: var(--main-bg-primary);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -24,11 +24,11 @@
   color: white;
 }
 
-.App-link {
+.LandingPage-link {
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
+@keyframes LandingPage-logo-spin {
   from {
     transform: rotate(0deg);
   }
