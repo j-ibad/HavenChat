@@ -6,3 +6,44 @@
 	--skyblue-faint: #87CEEB88;
 	--skyblue: #87CEEB;
 }
+
+.Form {
+	padding-bottom: 1em;
+}
+
+.Form label{
+	font-size: 14px;
+}
+
+.Form label::after{
+	content: ':'
+}
+
+.Form input{
+	display: block;
+	font-size: 16px;
+	padding: 3px 8px;
+	width: 80%; margin: 1em auto;
+	background: none;
+	color: var(--main-fg-primary);
+	border: none;
+	border-bottom: 2px solid var(--skyblue-faint);
+}
+
+.Form input[type=submit], .Form button{
+	font-size: 16px; letter-spacing: 2px;
+	text-transform: uppercase; font-weight: bold;
+	display: inline-block;
+	width: 50%; padding: 0.7em;
+	cursor: pointer;
+	border-radius: 1em;
+	border: 1px solid var(--skyblue);
+	background: none;
+	color: var(--main-fg-primary);
+	transition: background 1s, color 1s;
+}
+
+.Form input[type=submit]:hover, .Form button:hover{
+	background: var(--skyblue);
+	color: var(--main-fg-secondary);
+}

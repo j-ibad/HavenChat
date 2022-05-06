@@ -9,7 +9,7 @@ class TabComponent extends React.Component {
 	}
 	
 	tabClickHandler(i){
-		this.setState((prev)=>({content: prev.content, active: i}));
+		this.setState((prev)=>({active: i}));
 	}
 	
 	render(){
