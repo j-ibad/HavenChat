@@ -15,16 +15,16 @@
 	flex: 1;
 	cursor: pointer;
 	color: var(--main-fg-secondary);
-	transition: background 1s;
 }
 
 .TabComponent ul li div{
 	padding: 0.25em;
 	background: var(--skyblue);
 	border: 2px solid var(--skyblue-faint);
+	transition: background 1s;
 }
 
-.TabComponent ul li:hover{
+.TabComponent ul li div:hover{
 	background: var(--skyblue-faint);
 }
 
