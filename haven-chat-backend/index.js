@@ -1,17 +1,23 @@
 const express = require('express');
-const DB_Conn = require('./model/DB_Conn.js');
-
-let conn = new DB_Conn();
-
-conn.query("SELECT * FROM Test", (e, res)=>{
-	console.log(res);
-});
-
-conn.query("INSERT INTO Test(id) VALUES (4)", (e, res)=>{
-	console.log(res);
-});
+const http = require('http');
 
 
-conn.query("SELECT * FROM Test; SELECT * FROM Test;", (e, res)=>{
-	console.log(res);
+const PORT_HTTP = 18070;
+const PORT_HTTPS = 18071;
+
+
+const app = express();
+
+app.use(express.json());
+
+
+// app.get('/', (req, res)=>{
+	// console.log('HavenChat received request');
+	// res.send('Hello world!');
+// });
+
+app.use('/', express.static('dist'));
+
+app.listen(PORT_HTTP, ()=>{
+	console.log(`HavenChat listening on port ${PORT_HTTP}`);
 });
