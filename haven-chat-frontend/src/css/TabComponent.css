@@ -1,0 +1,33 @@
+.TabComponent {
+	border: 4px solid var(--skyblue-faint);
+}
+
+.TabComponent ul{
+	list-style-type: none;
+	padding: 0; margin: 0;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.TabComponent ul li{
+	flex: 1;
+	cursor: pointer;
+	padding: 0.25em;
+	color: var(--main-fg-secondary);
+	transition: background 1s;
+}
+
+.TabComponent ul li div{
+	background: var(--skyblue);
+	border: 2px solid var(--skyblue-faint);
+}
+
+.TabComponent ul li:hover{
+	background: var(--skyblue-faint);
+}
+
+.TabComponent .TabContent{
+	margin: 0;
+}

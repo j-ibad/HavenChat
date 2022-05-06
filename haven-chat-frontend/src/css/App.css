@@ -1,4 +1,8 @@
 :root {
 	--main-bg-primary: #282C34;
 	--main-fg-primary: #E0E0E0;
+	--main-fg-secondary: #202020;
+	
+	--skyblue-faint: #87CEEB88;
+	--skyblue: #87CEEB;
 }
