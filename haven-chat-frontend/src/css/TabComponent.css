@@ -14,12 +14,12 @@
 .TabComponent ul li{
 	flex: 1;
 	cursor: pointer;
-	padding: 0.25em;
 	color: var(--main-fg-secondary);
 	transition: background 1s;
 }
 
 .TabComponent ul li div{
+	padding: 0.25em;
 	background: var(--skyblue);
 	border: 2px solid var(--skyblue-faint);
 }
