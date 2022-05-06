@@ -12,7 +12,7 @@
 	
     "dev-frontend": "npm --prefix ./haven-chat-frontend run dev",
     "dev-backend": "npm --prefix ./haven-chat-backend run dev&",
-    "dev": "npm run dev-backend && npm run dev-frontend",
+    "dev": "NODE_ENV=development npm run dev-backend && NODE_ENV=development npm run dev-frontend",
 	
 	"prod-clean": "rm -rf ./haven-chat-frontend/build && rm -rf ./haven-chat-backend/dist",
     "prod-frontend": "npm --prefix ./haven-chat-frontend run prod",

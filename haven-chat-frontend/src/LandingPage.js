@@ -27,7 +27,10 @@ function LandingPage() {
 class LoginForm extends React.Component{
 	constructor(props){
 		super(props);
-		this.state = {username: "", password: ""};
+		this.state = {
+			username: "", password: "",
+			status: null, msg: ''
+		};
 		
 		this.submitHandler = this.submitHandler.bind(this);
 		this.changeHandler = this.changeHandler.bind(this);
@@ -36,9 +39,12 @@ class LoginForm extends React.Component{
 	submitHandler(e){
 		e.preventDefault();
 		console.log(this.state);
-		// TODO -- Login
 		api.post('/user/login', this.state).then((res)=>{
-			console.log(res);
+			this.setState({ status: res.data.status, msg: res.data.msg });
+			if(res.data.status){
+				// TODO -- Login
+				// Enter main site
+			}
 		});
 	}
 	
@@ -51,6 +57,10 @@ class LoginForm extends React.Component{
 	render(){
 		return ( <div className="Form">
 			<h3> Login </h3>
+			
+			<span className={`FormPrompt ${(this.state.status === null) ? 'None' : ((this.state.status) ? "Success" : "Error")}`}>
+				{this.state.msg} 
+			</span>
 			
 			<form onSubmit={this.submitHandler}>
 				<input type="text" name="username" value={this.state.username} onChange={this.changeHandler} placeholder="Username"/>
@@ -84,9 +94,6 @@ class RegistrationForm extends React.Component{
 		console.log(this.state);
 		api.post('/user/register', this.state).then((res)=>{
 			this.setState({ status: res.data.status, msg: res.data.msg });
-			if(res.data.status){
-				this.setState({ fName: "", lName: "", email: "", username: "", password: "" });
-			}
 		});
 	}
 	

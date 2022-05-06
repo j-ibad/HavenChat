@@ -43,18 +43,21 @@ class UserModel {
 		let retVal = {status: false, msg: 'An error has occured'};
 		lock.lock();
 		this.conn.query(sqlQuery, (e, res)=>{
+			console.log(res);
 			if(res.length >= 1 && res[0].password){
 				let hash = res[0].password;
-				bcrypt.compare(args.password, hash, (err2, salt)=>{
-					if(true){
-						retVal = {status: true, msg: 'Login successful', user: res[0]};
-					}else{
-						retVal[msg] = 'Invalid credentials.';
+				bcrypt.compare(args.password, hash, (err2, res)=>{
+					if(!err2){
+						if(res){
+							retVal = {status: true, msg: 'Login successful', user: res[0]};
+						}else{
+							retVal.msg = 'Invalid credentials.';
+						}
 					}
 					lock.unlock();
 				});
 			}else{
-				retVal[msg] = 'Invalid credentials.';
+				retVal.msg = 'Invalid credentials.';
 				lock.unlock();
 			}
 		});

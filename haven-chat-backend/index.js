@@ -18,7 +18,6 @@ app.use(cors({origin: '*'}));
 app.use('/', express.static('dist'));
 app.use('/api/user', UserRouter);
 
-
 if((process.env.NODE_ENV || '').trim() !== 'development'){
 	const https = require('https');
 	const httpsServer = https.createServer({
