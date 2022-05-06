@@ -9,7 +9,7 @@ class DB_Conn {
 	}
 	
 	query(sql, handler){
-		this.queryLock.wait().then(()=>{
+		this.queryLock.wait(true).then(()=>{
 			this.conn.connect(async(e)=>{
 				await this.conn.query(sql, (e, res)=>{
 					handler(e, res);

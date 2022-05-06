@@ -20,6 +20,10 @@ router.post('/login', (req, res)=>{
 	console.log(req.body);
 	
 	UserModel.login(req.body).then((retVal)=>{
+		if(retVal && retVal.status){
+			let uset = retVal.user;
+			// TODO: Create JWT Token with user
+		}
 		res.json(retVal || {status: false, msg: 'An error has occured'});
 	});
 	

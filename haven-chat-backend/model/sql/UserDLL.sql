@@ -8,3 +8,11 @@ CREATE TABLE IF NOT EXISTS User (
 	lastName varchar(256),
 	email varchar(320) NOT NULL UNIQUE
 );
+
+DROP TABLE IF EXISTS Friend;
+CREATE TABLE IF NOT EXISTS Friend (
+	userId int,
+	friendId int,
+	active bit DEFAULT(0),
+	createdDate datetime
+);

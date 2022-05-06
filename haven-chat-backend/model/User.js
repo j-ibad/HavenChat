@@ -38,25 +38,25 @@ class UserModel {
 	login(args){
 		Sanitizer.sqlSanitize(args);
 		
-		
 		let sqlQuery = `SELECT U.id, U.username, U.firstName, U.lastName, U.email, U.password FROM User AS U WHERE U.username='${args.username}' LIMIT 1;`;
-		
-		this.conn.query(sqlQuery, (e, res)=>{
-			console.log(e);
-			console.log(res);
-		});
-		
-		
 		let lock = new Lock();
-		let retVal = {};
+		let retVal = {status: false, msg: 'An error has occured'};
 		lock.lock();
-		bcrypt.genSalt(saltRounds, (err, salt)=>{
-			bcrypt.hash(args.password, salt, (err2, hash)=>{
-				let sqlQuery = "INSERT INTO User (username, password, createdDate, firstName, lastName, email) ";
-				sqlQuery += `SELECT '${args.username}', '${hash}', CURRENT_TIMESTAMP(), '${args.fName}', '${args.lName}', '${args.email}' `;
-				sqlQuery += `WHERE NOT EXISTS (SELECT * FROM User AS U WHERE U.username='${args.username}' OR U.email='${args.email}');`;
-				
-			});
+		this.conn.query(sqlQuery, (e, res)=>{
+			if(res.length >= 1 && res[0].password){
+				let hash = res[0].password;
+				bcrypt.compare(args.password, hash, (err2, salt)=>{
+					if(true){
+						retVal = {status: true, msg: 'Login successful', user: res[0]};
+					}else{
+						retVal[msg] = 'Invalid credentials.';
+					}
+					lock.unlock();
+				});
+			}else{
+				retVal[msg] = 'Invalid credentials.';
+				lock.unlock();
+			}
 		});
 		return lock.wait().then(()=>{ return retVal; });
 	}

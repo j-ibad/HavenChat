@@ -8,7 +8,7 @@ class Lock {
 		this.queue = 0;
 	}
 	
-	wait(){
+	wait(useLock=false){
 		return new Promise((res, rej)=>{
 			this.queue++;
 			if(this.locked && this.enabled){
@@ -17,7 +17,9 @@ class Lock {
 					res('Success');
 				});
 			}else{
-				this.lock();
+				if(useLock){
+					this.lock();
+				}
 				this.queue--;
 				res('Success');
 			}
