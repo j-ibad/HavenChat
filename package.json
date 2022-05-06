@@ -12,10 +12,12 @@
     "dev-backend": "npm --prefix ./haven-chat-backend run dev",
     "dev": "npm run dev-frontend && npm run dev-backend",
 	
+	"prod-clean": "rm -rf ./haven-chat-frontend/build && rm -rf ./haven-chat-backend/dist",
     "prod-frontend": "npm --prefix ./haven-chat-frontend run prod",
-	"prod-moveBuild": "rm -rf mv ./haven-chat-backend/dist && ./haven-chat-frontend/build ./haven-chat-backend/dist",
+	"prod-moveBuild": "mv ./haven-chat-frontend/build ./haven-chat-backend/dist",
     "prod-backend": "npm --prefix ./haven-chat-backend run prod",
-    "prod": "npm run prod-frontend && npm run prod-moveBuild && npm run prod-backend"
+    "build": "npm run prod-clean && npm run prod-frontend && npm run prod-moveBuild",
+	"prod": "npm run prod-backend"
   },
   "repository": {
     "type": "git",

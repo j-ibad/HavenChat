@@ -1,0 +1,9 @@
+[Unit]
+Description=HavenChat Web App
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /var/www/havenchat/startup.sh
+
+[Install]
+WantedBy=multi-user.target

@@ -6,7 +6,9 @@
   "scripts": {
     "init": "npm install -y && nodejs model/init.js",
 	  
-    "dev": "npm install && nodejs index.js"
+    "serve": "nodejs index.js",
+	"test": "npm install && npm run serve",
+	"prod": "npm install && npm run serve"
   },
   "author": "Josh Ibad & Winnie Pan",
   "license": "UNLICENSED",

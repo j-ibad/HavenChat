@@ -1,15 +1,23 @@
-# dependencies
+# Dependencies
 */node_modules/*
 */.pnp
 *.pnp.js
 
-# testing
+# Testing
 */coverage
 
-# production
+# Production and build directories
 */build
+*/dist
 
-# misc
+
+# Configurations
+*/config
+
+
+
+
+# Misc
 *.DS_Store
 *.env.local
 *.env.development.local
@@ -19,8 +27,3 @@
 *npm-debug.log*
 *yarn-debug.log*
 *yarn-error.log*
-
-
-# Configurations
-*/config
-
