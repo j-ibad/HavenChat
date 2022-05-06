@@ -4,13 +4,15 @@
   "description": "HavenChat -- A Secure Live Chatting Service",
   "main": "index.js",
   "scripts": {
+	"init": "npm --prefix ./haven-chat-backend run init",
+	  
     "test-frontend": "npm --prefix ./haven-chat-frontend run test&",
     "test-backend": "npm --prefix ./haven-chat-backend run test",
     "test": "npm run test-frontend && npm run test-backend",
 	
-    "dev-frontend": "npm --prefix ./haven-chat-frontend run dev&",
-    "dev-backend": "npm --prefix ./haven-chat-backend run dev",
-    "dev": "npm run dev-frontend && npm run dev-backend",
+    "dev-frontend": "npm --prefix ./haven-chat-frontend run dev",
+    "dev-backend": "npm --prefix ./haven-chat-backend run dev&",
+    "dev": "npm run dev-backend && npm run dev-frontend",
 	
 	"prod-clean": "rm -rf ./haven-chat-frontend/build && rm -rf ./haven-chat-backend/dist",
     "prod-frontend": "npm --prefix ./haven-chat-frontend run prod",

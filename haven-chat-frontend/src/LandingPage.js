@@ -1,8 +1,12 @@
+import React from 'react';
+
 import logo from './logo.svg';
 import './css/App.css';
 import './css/LandingPage.css';
 import {TabComponent, TabContent} from './TabComponent.js';
-import React from 'react';
+import {api} from './util/api.js'
+
+
 
 function LandingPage() {
   return (
@@ -33,6 +37,9 @@ class LoginForm extends React.Component{
 		e.preventDefault();
 		console.log(this.state);
 		// TODO -- Login
+		api.post('/user/login', this.state).then((res)=>{
+			console.log(res);
+		});
 	}
 	
 	changeHandler(e){
@@ -62,9 +69,10 @@ class RegistrationForm extends React.Component{
 			fName: "",
 			lName: "",
 			email: "",
-			
 			username: "",
-			password: ""
+			password: "",
+			status: null,
+			msg: ''
 		};
 		
 		this.submitHandler = this.submitHandler.bind(this);
@@ -74,7 +82,12 @@ class RegistrationForm extends React.Component{
 	submitHandler(e){
 		e.preventDefault();
 		console.log(this.state);
-		// TODO -- Register
+		api.post('/user/register', this.state).then((res)=>{
+			this.setState({ status: res.data.status, msg: res.data.msg });
+			if(res.data.status){
+				this.setState({ fName: "", lName: "", email: "", username: "", password: "" });
+			}
+		});
 	}
 	
 	changeHandler(e){
@@ -86,6 +99,10 @@ class RegistrationForm extends React.Component{
 	render(){
 		return ( <div className="Form">
 			<h3> Register </h3>
+			
+			<span className={`FormPrompt ${(this.state.status === null) ? 'None' : ((this.state.status) ? "Success" : "Error")}`}>
+				{this.state.msg} 
+			</span>
 			
 			<form onSubmit={this.submitHandler}>
 				<input type="text" name="fName" value={this.state.fName} onChange={this.changeHandler} placeholder="First Name"/>

@@ -17,7 +17,8 @@ fs.readdir(dirPath, (e, dllFiles)=>{
 			if(sqlQuery){
 				conn.query(sqlQuery, (e, res)=>{
 					console.log(sqlQuery);
-					console.log(res);
+					if(e) console.log(e);
+					if(res) console.log(res);
 				});
 			}
 		}

@@ -5,14 +5,16 @@
   "main": "index.js",
   "scripts": {
     "init": "npm install -y && nodejs model/init.js",
-	  
     "serve": "nodejs index.js",
-	"test": "npm install && npm run serve",
-	"prod": "npm install && npm run serve"
+    "test": "npm install && npm run serve",
+    "dev": "npm install && npm run serve",
+    "prod": "npm install && npm run serve"
   },
   "author": "Josh Ibad & Winnie Pan",
   "license": "UNLICENSED",
   "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cors": "^2.8.5",
     "express": "^4.18.1",
     "mysql": "^2.18.1"
   }

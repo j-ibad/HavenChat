@@ -5,11 +5,24 @@
 	
 	--skyblue-faint: #87CEEB88;
 	--skyblue: #87CEEB;
+	
+	--bg-success: #90EE90BB;
+	--bg-error: #FF7F8ABB;
 }
 
 .Form {
 	padding-bottom: 1em;
 }
+
+.Form .FormPrompt{
+	display: inline-block;
+	font-size: 16px;
+	padding: 0.5em 1em;
+	margin-bottom: 1em;
+}
+.Form .FormPrompt.None{ display: none; }
+.Form .FormPrompt.Success{ background: var(--bg-success); }
+.Form .FormPrompt.Error{ background: var(--bg-error); }
 
 .Form label{
 	font-size: 14px;

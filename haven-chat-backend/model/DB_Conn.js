@@ -14,6 +14,9 @@ class DB_Conn {
 				await this.conn.query(sql, (e, res)=>{
 					handler(e, res);
 					this.queryLock.unlock();
+					if(this.conn.queue === 0){
+						this.conn.end();
+					}
 				});
 			});
 		});
