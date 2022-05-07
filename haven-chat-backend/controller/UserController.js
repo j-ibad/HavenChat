@@ -6,7 +6,9 @@ const router = express.Router();
 router.use(authorization);
 
 
-router.post('/test', (req, res)=>{
+router.post('/getUsers', (req, res)=>{
+	
+	
 	res.json({status: true});
 });
 

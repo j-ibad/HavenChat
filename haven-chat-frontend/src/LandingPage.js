@@ -1,11 +1,10 @@
 import React from 'react';
 import {Navigate} from "react-router-dom";
 
-import logo from './logo.svg';
-import './css/App.css';
-import './css/LandingPage.css';
-import {TabComponent, TabContent} from './TabComponent.js';
 import {api} from './util/api.js'
+import logo from './media/logo.svg';
+import './css/LandingPage.css';
+import {Tab, TabContent} from './component/Tab.js';
 
 
 class LandingPage extends React.Component{
@@ -14,10 +13,10 @@ class LandingPage extends React.Component{
 			<header className="LandingPage-header">
 				<img src={logo} className="LandingPage-logo" alt="logo" />
 				<p> Welcome to HavenChat </p>
-				<TabComponent style={{width: "70%", margin: "0 10%"}}>
+				<Tab style={{width: "70%", margin: "0 10%"}}>
 					<TabContent label="Login"> <LoginForm onLogin={this.props.onLogin} session={this.props.session}/> </TabContent> 
 					<TabContent label="Register"> <RegistrationForm /> </TabContent> 
-				</TabComponent>
+				</Tab>
 			</header>
 		</div> );
 	}

@@ -6,6 +6,10 @@ class UserModel {
 	constructor(){
 		this.conn = new DB_Conn();
 	}
+	
+	getUsers(filter){
+		
+	}
 }
 
 const User = new UserModel();
