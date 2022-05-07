@@ -15,15 +15,18 @@ class UserModel {
 		Sanitizer.sqlSanitize(args);
 		
 		let lock = new Lock();
-		let retVal = {};
+		let retVal = {status: false, msg: 'An error has occured'};
 		lock.lock();
 		bcrypt.genSalt(saltRounds, (err, salt)=>{
+			if(err){ lock.unlock(); return; }
 			bcrypt.hash(args.password, salt, (err2, hash)=>{
+				if(err2){ lock.unlock(); return; }
 				let sqlQuery = "INSERT INTO User (username, password, createdDate, firstName, lastName, email) ";
 				sqlQuery += `SELECT '${args.username}', '${hash}', CURRENT_TIMESTAMP(), '${args.fName}', '${args.lName}', '${args.email}' `;
 				sqlQuery += `WHERE NOT EXISTS (SELECT * FROM User AS U WHERE U.username='${args.username}' OR U.email='${args.email}');`;
 				
-				this.conn.query(sqlQuery, (e, res)=>{
+				this.conn.query(sqlQuery, (err3, res)=>{
+					if(err3){ lock.unlock(); return; }
 					retVal = {
 						status: res && res.insertId > 0,
 						msg: (res && res.insertId > 0) ? 'User registered successfully' : 'The username or email is already in use'
@@ -42,8 +45,8 @@ class UserModel {
 		let lock = new Lock();
 		let retVal = {status: false, msg: 'An error has occured'};
 		lock.lock();
-		this.conn.query(sqlQuery, (e, res)=>{
-			console.log(res);
+		this.conn.query(sqlQuery, (err, res)=>{
+			if(err){ lock.unlock(); return; }
 			if(res.length >= 1 && res[0].password){
 				let hash = res[0].password;
 				bcrypt.compare(args.password, hash, (err2, res)=>{
