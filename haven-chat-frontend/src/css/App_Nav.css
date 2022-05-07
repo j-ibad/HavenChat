@@ -5,7 +5,7 @@
 	list-style-type:none;
 	background-color: #333;
 	overflow: hidden;
-	width: 100vw;
+	width: 100%;
 }
 #HC-Nav ul a { text-decoration: none;
 	float: left;
@@ -16,7 +16,7 @@
 	color: white;
 }
 #HC-Nav ul a:hover {
-	background-color: #ddd;
+	background-color: var(--skyblue-faint);
 	color: black;
 }
 #HC-Nav ul a.logoff {
@@ -26,4 +26,20 @@
 #HC-Nav ul a.logoff:hover, #HC-Nav ul a.logoff:focus, #HC-Nav ul a.logoff:active, #HC-Nav ul a.logoff.active{
 	border-color: var(--main-bg-primary);
 	background-color: var(--main-bg-primary);
+}
+
+#HC-Nav .LoggedIn{
+	float: right;
+}
+
+#HC-Nav .Login{
+	float: right;
+	background-color: var(--skyblue-faint);
+	color: var(--main-fg-primary);
+}
+
+#HC-Nav .Logout{
+	float: right;
+	cursor: pointer;
+	color: var(--bg-error)
 }

@@ -1,21 +1,64 @@
-import {BrowserRouter as Router, Routes as Switch, Route, Link} from "react-router-dom";
+import React from 'react';
+import Cookies from 'universal-cookie';
+import {BrowserRouter as Router, Routes as Switch, Route, Link, Navigate} from "react-router-dom";
+
 import './css/App_Nav.css';
 import LandingPage from "./LandingPage.js"
+import {api} from './util/api.js'
 
-function App() {
-  return ( <Router> <div>
-		<nav id="HC-Nav"> <ul>
-			<li> <Link to="/">Home</Link> </li>
-			<li> <Link to="/about">About</Link> </li>
-			<li> <Link to="/users">Users</Link> </li>
-		</ul> </nav>
+const cookies = new Cookies();
 
-		<Switch>
-		  <Route path="/" element={<LandingPage />}> </Route>
-		  <Route path="/about" element={<About />}> </Route>
-		  <Route path="/users" element={<Users />}> </Route>
-		</Switch>
-	</div> </Router> );
+class App extends React.Component {
+	constructor(props){
+		super(props);
+		this.state = {
+			session: cookies.get("havenchat_session") || null,
+			logout: 0
+		};
+		
+		this.refreshCookie = this.refreshCookie.bind(this);
+		this.logout = this.logout.bind(this);
+	}
+	
+	refreshCookie(){
+		this.setState({
+			session: cookies.get("havenchat_session") || null
+		});
+	}
+	
+	logout(){
+		api.post('/auth/logout').then(()=>{
+			this.refreshCookie();
+		});
+	}
+  
+	render(){
+		return ( <Router> <div>
+			<nav id="HC-Nav"> <ul>
+				<li> <Link to="/home">Home</Link> </li>
+				{this.state.session && <li> <Link to="/about">About</Link> </li>}
+				{this.state.session && <li> <Link to="/users">Users</Link> </li>}
+				
+				
+				{this.state.session && <li className="LoggedIn"> Logged in as {this.state.session.username} </li>}
+				{this.state.session && <li className="Logout"> <Link to="/logout"> Logout </Link> </li>}
+				{!this.state.session && <li className="Login"> <Link to="/"> Login | Sign-Up </Link> </li>}
+			</ul> </nav>
+
+			<Switch>
+			  <Route path="/" element={<LandingPage onLogin={this.refreshCookie}/>}> </Route>
+			  <Route path="/home" element={<Home />}> </Route>
+			  <Route path="/about" element={<About />}> </Route>
+			  <Route path="/users" element={<Users />}> </Route>
+			  <Route path="/logout" element={<Logout onLogout={this.logout}/>}> </Route>
+			</Switch>
+		</div> </Router> );
+	}
+}
+
+function Logout(props){
+	props.onLogout();
+	return <Navigate to="/" />;
 }
 
 function About() {
@@ -24,6 +67,10 @@ function About() {
 
 function Users() {
   return <h2>Users</h2>;
+}
+
+function Home() {
+  return <h2>Home</h2>;
 }
 
 export default App;

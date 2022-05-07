@@ -1,4 +1,5 @@
 import React from 'react';
+import {Navigate} from "react-router-dom";
 
 import logo from './logo.svg';
 import './css/App.css';
@@ -7,20 +8,19 @@ import {TabComponent, TabContent} from './TabComponent.js';
 import {api} from './util/api.js'
 
 
-
-function LandingPage() {
-  return (
-    <div className="LandingPage">
-		<header className="LandingPage-header">
-			<img src={logo} className="LandingPage-logo" alt="logo" />
-			<p> Welcome to HavenChat </p>
-			<TabComponent style={{width: "70%", margin: "0 10%"}}>
-				<TabContent label="Login"> <LoginForm /> </TabContent> 
-				<TabContent label="Register"> <RegistrationForm /> </TabContent> 
-			</TabComponent>
-		</header>
-    </div>
-  );
+class LandingPage extends React.Component{
+	render(){
+		return ( <div className="LandingPage">
+			<header className="LandingPage-header">
+				<img src={logo} className="LandingPage-logo" alt="logo" />
+				<p> Welcome to HavenChat </p>
+				<TabComponent style={{width: "70%", margin: "0 10%"}}>
+					<TabContent label="Login"> <LoginForm onLogin={this.props.onLogin}/> </TabContent> 
+					<TabContent label="Register"> <RegistrationForm /> </TabContent> 
+				</TabComponent>
+			</header>
+		</div> );
+	}
 }
 
 
@@ -31,7 +31,8 @@ class LoginForm extends React.Component{
 			form: {username: "", password: ""},
 			status: null, 
 			msg: '',
-			loading: false
+			loading: false,
+			login: false
 		};
 		
 		this.submitHandler = this.submitHandler.bind(this);
@@ -41,13 +42,12 @@ class LoginForm extends React.Component{
 	submitHandler(e){
 		e.preventDefault();
 		if(this.state.loading) return;
-		console.log(this.state);
 		this.setState({ loading: true, status: null });
-		api.post('/user/login', this.state.form).then((res)=>{
+		api.post('/auth/login', this.state.form).then((res)=>{
 			this.setState({ status: res.data.status, msg: res.data.msg });
 			if(res.data.status){
-				// TODO -- Login
-				// Enter main site
+				this.props.onLogin();
+				this.setState({ login: true });
 			}
 		}).catch().then(()=>{
 			this.setState({ loading: false });
@@ -73,12 +73,14 @@ class LoginForm extends React.Component{
 			</span>
 			
 			<form onSubmit={this.submitHandler}>
-				<input type="text" name="username" value={this.state.form.username} onChange={this.changeHandler} placeholder="Username" required/>
-				<input type="password" name="password" value={this.state.form.password} onChange={this.changeHandler} placeholder="Password" required/>
+				<input type="text" name="username" value={this.state.form.username} onChange={this.changeHandler} placeholder="Username" required autoComplete="username"/>
+				<input type="password" name="password" value={this.state.form.password} onChange={this.changeHandler} placeholder="Password" required autoComplete="current-password"/>
 				<button type="submit" className={(this.state.loading) ? 'Loading' : ''}> 
 					{(this.state.loading) ? 'Logging In' : 'Log In'} 
 				</button>
 			</form>
+			
+			{this.state.login && <Navigate to="/home"/>}
 		</div> );
 	}
 }
@@ -106,9 +108,8 @@ class RegistrationForm extends React.Component{
 	submitHandler(e){
 		e.preventDefault();
 		if(this.state.loading) return;
-		console.log(this.state);
 		this.setState({ loading: true, status: null });
-		api.post('/user/register', this.state.form).then((res)=>{
+		api.post('/auth/register', this.state.form).then((res)=>{
 			this.setState({ status: res.data.status, msg: res.data.msg });
 		}).catch().then(()=>{
 			this.setState({ loading: false });
@@ -137,8 +138,8 @@ class RegistrationForm extends React.Component{
 				<input type="text" name="fName" value={this.state.form.fName} onChange={this.changeHandler} placeholder="First Name" required/>
 				<input type="text" name="lName" value={this.state.form.lName} onChange={this.changeHandler} placeholder="Last Name" required/>
 				<input type="email" name="email" value={this.state.form.email} onChange={this.changeHandler} placeholder="Email" required/>
-				<input type="text" name="username" value={this.state.form.username} onChange={this.changeHandler} placeholder="Username" required/>
-				<input type="password" name="password" value={this.state.form.password} onChange={this.changeHandler} placeholder="Password" required/>
+				<input type="text" name="username" value={this.state.form.username} onChange={this.changeHandler} placeholder="Username" required autoComplete="username"/>
+				<input type="password" name="password" value={this.state.form.password} onChange={this.changeHandler} placeholder="Password" required autoComplete="new-password"/>
 				<button type="submit" className={(this.state.loading) ? 'Loading' : ''}> 
 					{(this.state.loading) ? 'Registering' : 'Register'} 
 				</button>
