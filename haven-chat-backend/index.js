@@ -3,6 +3,7 @@ const http = require('http');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
+const path = require('path');
 
 const JWT = require('./util/JWT.js');
 const AuthRouter = require('./controller/AuthController.js');
@@ -11,6 +12,7 @@ const UserRouter = require('./controller/UserController.js');
 
 const PORT_HTTP = 18070;
 const PORT_HTTPS = 18071;
+const IS_PROD = (process.env.NODE_ENV || '').trim() !== 'development';
 
 const corsConfig = {
     credentials: true,
@@ -23,15 +25,36 @@ app.use(express.json());
 app.use(cors(corsConfig));
 app.use(cookieParser());
 
+if(IS_PROD){
+	app.use((req, res, next) => { 
+		if (req.headers['x-forwarded-proto'] !== 'https'){
+			return res.redirect('https://' + req.headers.host + req.url);
+		}else{
+			return next();
+		}			
+	});
+}
 
-/* [===== Load controllers and serve front-end =====] */
+
+/* [===== Serve front-end =====] */
+const reactRoutes = ['/home', '/logout'];
+app.use('/', (req, res, next)=>{
+	if(reactRoutes.includes(req.path)){
+		return res.sendFile(path.join(__dirname, 'dist/index.html'));
+	}else{
+		return next();
+	}
+});
 app.use('/', express.static('dist'));
+
+
+/* [===== Load Controllers =====] */
 app.use('/api/auth', AuthRouter);
 app.use('/api/user', UserRouter);
 
 
 /* [===== Serve app =====] */
-if((process.env.NODE_ENV || '').trim() !== 'development'){
+if(IS_PROD){
 	const https = require('https');
 	const httpsServer = https.createServer({
 		key: fs.readFileSync('/etc/letsencrypt/live/ibad.one/privkey.pem'),

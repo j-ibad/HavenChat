@@ -15,7 +15,7 @@ class LandingPage extends React.Component{
 				<img src={logo} className="LandingPage-logo" alt="logo" />
 				<p> Welcome to HavenChat </p>
 				<TabComponent style={{width: "70%", margin: "0 10%"}}>
-					<TabContent label="Login"> <LoginForm onLogin={this.props.onLogin}/> </TabContent> 
+					<TabContent label="Login"> <LoginForm onLogin={this.props.onLogin} session={this.props.session}/> </TabContent> 
 					<TabContent label="Register"> <RegistrationForm /> </TabContent> 
 				</TabComponent>
 			</header>
@@ -80,7 +80,7 @@ class LoginForm extends React.Component{
 				</button>
 			</form>
 			
-			{this.state.login && <Navigate to="/home"/>}
+			{(this.props.session || this.state.login) && <Navigate to="/home"/>}
 		</div> );
 	}
 }

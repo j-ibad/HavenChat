@@ -13,7 +13,7 @@ class App extends React.Component {
 		super(props);
 		this.state = {
 			session: cookies.get("havenchat_session") || null,
-			logout: 0
+			loggingOut: true
 		};
 		
 		this.refreshCookie = this.refreshCookie.bind(this);
@@ -26,9 +26,14 @@ class App extends React.Component {
 		});
 	}
 	
-	logout(){
+	logout(child){
+		this.setState({loggingOut: true});
 		api.post('/auth/logout').then(()=>{
 			this.refreshCookie();
+		}).catch().then(()=>{
+			console.log('Logged out');
+			this.setState({loggingOut: false});
+			child.setState({loggedOut: true});
 		});
 	}
   
@@ -46,7 +51,7 @@ class App extends React.Component {
 			</ul> </nav>
 
 			<Switch>
-			  <Route path="/" element={<LandingPage onLogin={this.refreshCookie}/>}> </Route>
+			  <Route path="/" element={<LandingPage onLogin={this.refreshCookie} session={this.state.session}/>}> </Route>
 			  <Route path="/home" element={<Home />}> </Route>
 			  <Route path="/about" element={<About />}> </Route>
 			  <Route path="/users" element={<Users />}> </Route>
@@ -56,9 +61,26 @@ class App extends React.Component {
 	}
 }
 
-function Logout(props){
-	props.onLogout();
-	return <Navigate to="/" />;
+class Logout extends React.Component {
+	constructor(props){
+		super(props);
+		this.state = {
+			loggedOut: false
+		}
+		this.props.onLogout(this);
+	}
+	
+	render(){
+		return ( 
+			<div>
+				{this.state.loggedOut}
+				{this.state.loggedOut
+					? <Navigate to="/" />
+					: <p> Logging out ... </p>
+				}
+			</div>
+		);
+	}	
 }
 
 function About() {
