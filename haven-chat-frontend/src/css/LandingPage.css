@@ -9,7 +9,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .LandingPage-logo {
-    animation: LandingPage-logo-spin infinite 20s linear;
+    animation: SpinAnimation infinite 20s linear;
   }
 }
 
@@ -26,15 +26,6 @@
 
 .LandingPage-link {
   color: #61dafb;
-}
-
-@keyframes LandingPage-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 /* [===== Login / Register Form =====] */

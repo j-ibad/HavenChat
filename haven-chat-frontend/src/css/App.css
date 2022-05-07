@@ -10,6 +10,8 @@
 	--bg-error: #FF7F8ABB;
 }
 
+
+/* [===== Form ===== */
 .Form {
 	padding-bottom: 1em;
 }
@@ -59,4 +61,32 @@
 .Form input[type=submit]:hover, .Form button:hover{
 	background: var(--skyblue);
 	color: var(--main-fg-secondary);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .Form input[type=submit].Loading::after, .Form button.Loading::after {
+	display: inline-block;
+	background-image: url(../img/spinner.png);
+	background-size: 1em 1em;
+	content: "";
+	width: 1em; height: 1em;
+	animation: SpinAnimation infinite 1s linear;
+	filter: invert(100%);
+	transition: filter 1s;
+  }
+  
+  .Form input[type=submit].Loading:hover::after, .Form button.Loading:hover::after {
+	filter: invert(0);
+  }
+}
+
+/* [===== Animations =====] */
+
+@keyframes SpinAnimation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

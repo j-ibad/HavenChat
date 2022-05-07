@@ -28,8 +28,10 @@ class LoginForm extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
-			username: "", password: "",
-			status: null, msg: ''
+			form: {username: "", password: ""},
+			status: null, 
+			msg: '',
+			loading: false
 		};
 		
 		this.submitHandler = this.submitHandler.bind(this);
@@ -38,20 +40,28 @@ class LoginForm extends React.Component{
 	
 	submitHandler(e){
 		e.preventDefault();
+		if(this.state.loading) return;
 		console.log(this.state);
-		api.post('/user/login', this.state).then((res)=>{
+		this.setState({ loading: true, status: null });
+		api.post('/user/login', this.state.form).then((res)=>{
 			this.setState({ status: res.data.status, msg: res.data.msg });
 			if(res.data.status){
 				// TODO -- Login
 				// Enter main site
 			}
+		}).catch().then(()=>{
+			this.setState({ loading: false });
 		});
 	}
 	
 	changeHandler(e){
 		const target = e.target;
 		const val = target.type === 'checkbox' ? target.checked : target.value;
-		this.setState({ [target.name]: val });
+		this.setState(prevState=>{
+			let form = Object.assign({}, prevState.form);
+			form[target.name] = val;
+			return {form};
+		});
 	}
 	
 	render(){
@@ -63,9 +73,11 @@ class LoginForm extends React.Component{
 			</span>
 			
 			<form onSubmit={this.submitHandler}>
-				<input type="text" name="username" value={this.state.username} onChange={this.changeHandler} placeholder="Username"/>
-				<input type="password" name="password" value={this.state.password} onChange={this.changeHandler} placeholder="Password"/>
-				<button type="submit"> Log In </button>
+				<input type="text" name="username" value={this.state.form.username} onChange={this.changeHandler} placeholder="Username"/>
+				<input type="password" name="password" value={this.state.form.password} onChange={this.changeHandler} placeholder="Password"/>
+				<button type="submit" className={(this.state.loading) ? 'Loading' : ''}> 
+					{(this.state.loading) ? 'Logging In' : 'Log In'} 
+				</button>
 			</form>
 		</div> );
 	}
@@ -76,13 +88,15 @@ class RegistrationForm extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
-			fName: "",
-			lName: "",
-			email: "",
-			username: "",
-			password: "",
+			form: {
+				fName: "", lName: "",
+				email: "",
+				username: "", 
+				password: ""
+			},
 			status: null,
-			msg: ''
+			msg: '',
+			loading: false
 		};
 		
 		this.submitHandler = this.submitHandler.bind(this);
@@ -91,16 +105,24 @@ class RegistrationForm extends React.Component{
 	
 	submitHandler(e){
 		e.preventDefault();
+		if(this.state.loading) return;
 		console.log(this.state);
-		api.post('/user/register', this.state).then((res)=>{
+		this.setState({ loading: true, status: null });
+		api.post('/user/register', this.state.form).then((res)=>{
 			this.setState({ status: res.data.status, msg: res.data.msg });
+		}).catch().then(()=>{
+			this.setState({ loading: false });
 		});
 	}
 	
 	changeHandler(e){
 		const target = e.target;
 		const val = target.type === 'checkbox' ? target.checked : target.value;
-		this.setState({ [target.name]: val });
+		this.setState(prevState=>{
+			let form = Object.assign({}, prevState.form);
+			form[target.name] = val;
+			return {form};
+		});
 	}
 	
 	render(){
@@ -112,12 +134,14 @@ class RegistrationForm extends React.Component{
 			</span>
 			
 			<form onSubmit={this.submitHandler}>
-				<input type="text" name="fName" value={this.state.fName} onChange={this.changeHandler} placeholder="First Name"/>
-				<input type="text" name="lName" value={this.state.lName} onChange={this.changeHandler} placeholder="Last Name"/>
-				<input type="email" name="email" value={this.state.email} onChange={this.changeHandler} placeholder="Email"/>
-				<input type="text" name="username" value={this.state.username} onChange={this.changeHandler} placeholder="Username"/>
-				<input type="password" name="password" value={this.state.password} onChange={this.changeHandler} placeholder="Password"/>
-				<button type="submit"> Register </button>
+				<input type="text" name="fName" value={this.state.form.fName} onChange={this.changeHandler} placeholder="First Name"/>
+				<input type="text" name="lName" value={this.state.form.lName} onChange={this.changeHandler} placeholder="Last Name"/>
+				<input type="email" name="email" value={this.state.form.email} onChange={this.changeHandler} placeholder="Email"/>
+				<input type="text" name="username" value={this.state.form.username} onChange={this.changeHandler} placeholder="Username"/>
+				<input type="password" name="password" value={this.state.form.password} onChange={this.changeHandler} placeholder="Password"/>
+				<button type="submit" className={(this.state.loading) ? 'Loading' : ''}> 
+					{(this.state.loading) ? 'Registering' : 'Register'} 
+				</button>
 			</form>
 		</div> );
 	}
