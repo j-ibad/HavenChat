@@ -25,16 +25,6 @@ app.use(express.json());
 app.use(cors(corsConfig));
 app.use(cookieParser());
 
-if(IS_PROD){
-	app.use((req, res, next) => { 
-		if (req.headers['x-forwarded-proto'] !== 'https'){
-			return res.redirect('https://' + req.headers.host + req.url);
-		}else{
-			return next();
-		}			
-	});
-}
-
 
 /* [===== Serve front-end =====] */
 const reactRoutes = ['/home', '/logout'];

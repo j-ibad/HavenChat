@@ -31,7 +31,6 @@ class App extends React.Component {
 		api.post('/auth/logout').then(()=>{
 			this.refreshCookie();
 		}).catch().then(()=>{
-			console.log('Logged out');
 			this.setState({loggingOut: false});
 			child.setState({loggedOut: true});
 		});
