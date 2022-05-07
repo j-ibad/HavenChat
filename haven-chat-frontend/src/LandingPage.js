@@ -73,8 +73,8 @@ class LoginForm extends React.Component{
 			</span>
 			
 			<form onSubmit={this.submitHandler}>
-				<input type="text" name="username" value={this.state.form.username} onChange={this.changeHandler} placeholder="Username"/>
-				<input type="password" name="password" value={this.state.form.password} onChange={this.changeHandler} placeholder="Password"/>
+				<input type="text" name="username" value={this.state.form.username} onChange={this.changeHandler} placeholder="Username" required/>
+				<input type="password" name="password" value={this.state.form.password} onChange={this.changeHandler} placeholder="Password" required/>
 				<button type="submit" className={(this.state.loading) ? 'Loading' : ''}> 
 					{(this.state.loading) ? 'Logging In' : 'Log In'} 
 				</button>
@@ -134,11 +134,11 @@ class RegistrationForm extends React.Component{
 			</span>
 			
 			<form onSubmit={this.submitHandler}>
-				<input type="text" name="fName" value={this.state.form.fName} onChange={this.changeHandler} placeholder="First Name"/>
-				<input type="text" name="lName" value={this.state.form.lName} onChange={this.changeHandler} placeholder="Last Name"/>
-				<input type="email" name="email" value={this.state.form.email} onChange={this.changeHandler} placeholder="Email"/>
-				<input type="text" name="username" value={this.state.form.username} onChange={this.changeHandler} placeholder="Username"/>
-				<input type="password" name="password" value={this.state.form.password} onChange={this.changeHandler} placeholder="Password"/>
+				<input type="text" name="fName" value={this.state.form.fName} onChange={this.changeHandler} placeholder="First Name" required/>
+				<input type="text" name="lName" value={this.state.form.lName} onChange={this.changeHandler} placeholder="Last Name" required/>
+				<input type="email" name="email" value={this.state.form.email} onChange={this.changeHandler} placeholder="Email" required/>
+				<input type="text" name="username" value={this.state.form.username} onChange={this.changeHandler} placeholder="Username" required/>
+				<input type="password" name="password" value={this.state.form.password} onChange={this.changeHandler} placeholder="Password" required/>
 				<button type="submit" className={(this.state.loading) ? 'Loading' : ''}> 
 					{(this.state.loading) ? 'Registering' : 'Register'} 
 				</button>
