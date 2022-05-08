@@ -25,18 +25,18 @@ class WebSocketConnection {
 	}
 	
 	heartbeat(self){
-		console.log(`Heartbeat: ${self.user.username}`);
+		// console.log(`Heartbeat: ${self.user.username}`);
 		self.client.isAlive = true;
 		UserModel.setActive(self.user.id);
 	}
 	
 	messageHandler(self, data){
-		console.log('received: %s', data);
+		// console.log('received: %s', data);
 		self.client.send('Hello');
 	}
 	
 	closeHandler(self){
-		console.log(`Closed: ${self.user.username}`);
+		// console.log(`Closed: ${self.user.username}`);
 		UserModel.setInactive(self.user.id);
 	}
 }
