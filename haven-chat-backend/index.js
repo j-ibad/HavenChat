@@ -4,6 +4,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const path = require('path');
+const WebSocketServer = require('ws').Server;
 
 const JWT = require('./util/JWT.js');
 const AuthRouter = require('./controller/AuthController.js');
@@ -12,6 +13,8 @@ const UserRouter = require('./controller/UserController.js');
 
 const PORT_HTTP = 18070;
 const PORT_HTTPS = 18071;
+const PORT_WS = 18072;
+const PORT_WSS = 18073;
 const IS_PROD = (process.env.NODE_ENV || '').trim() !== 'development';
 
 const corsConfig = {
@@ -58,4 +61,16 @@ if(IS_PROD){
 
 app.listen(PORT_HTTP, ()=>{
 	console.log(`HavenChat listening on port ${PORT_HTTP}`);
+});
+
+
+
+
+const wss = new WebSocketServer({port: PORT_WS});
+wss.on('connection', (ws)=>{
+	ws.on('message', (data)=>{
+		console.log('received: %s', data);
+	});
+	
+	ws.send('something');
 });
