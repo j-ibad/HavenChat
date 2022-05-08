@@ -162,14 +162,22 @@ class UserModel {
 	
 	
 	async setActive(uid){
-		let sqlQuery = `UPDATE User SET connectedDate=CURRENT_TIMESTAMP WHERE id=${uid};`;
+		let sqlQuery = `UPDATE User SET connectedDate=CASE `
+		sqlQuery += `WHEN CURRENT_TIMESTAMP <= disconnectedDate `
+		sqlQuery += `THEN TIMESTAMPADD(SECOND, 1, disconnectedDate) `
+		sqlQuery += `ELSE CURRENT_TIMESTAMP END `
+		sqlQuery += `WHERE id=${uid};`;
 		let res = await this.conn.queryAsync(sqlQuery);
 		let retVal = {status: (res.status && res.data.affectedRows > 0)};
 		return retVal;
 	}
 	
 	async setInactive(uid){
-		let sqlQuery = `UPDATE User SET disconnectedDate=CURRENT_TIMESTAMP WHERE id=${uid};`;
+		let sqlQuery = `UPDATE User SET disconnectedDate=CASE `
+		sqlQuery += `WHEN CURRENT_TIMESTAMP <= connectedDate `
+		sqlQuery += `THEN TIMESTAMPADD(SECOND, 1, connectedDate) `
+		sqlQuery += `ELSE CURRENT_TIMESTAMP END `
+		sqlQuery += `WHERE id=${uid};`;
 		let res = await this.conn.queryAsync(sqlQuery);
 		let retVal = {status: (res.status && res.data.affectedRows > 0)};
 		return retVal;

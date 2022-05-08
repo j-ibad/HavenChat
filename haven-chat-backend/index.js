@@ -71,7 +71,6 @@ wss.on('connection', WebSocketHandler.connectionHandler);
 
 const wsPingInterval = setInterval( ()=>{
 	WebSocketHandler.pingLoop(wss);
-	console.log('SERVER: PING');
 }, WebSocketHandler.HEARTBEAT_INTERVAL);
 
 wss.on('close', function close() {

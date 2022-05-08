@@ -10,7 +10,6 @@ class WebSocketConnection {
 		self.user = user;
 		self.client.isAlive = true;
 		self.client.closeHandler = ()=>{
-			console.log('Called close handler');
 			UserModel.setInactive(self.user.id);
 		}
 		self.onConnection();
@@ -19,10 +18,6 @@ class WebSocketConnection {
 	onConnection(){
 		let self = this;
 		self.client.on('message', (data)=>{self.messageHandler(self, data)});
-		
-		self.client.send('Connected to Server');
-		
-		
 		self.client.on('pong', ()=>{self.heartbeat(self)});
 		self.client.on('close', (data)=>{self.closeHandler(self)});
 		
@@ -30,7 +25,7 @@ class WebSocketConnection {
 	}
 	
 	heartbeat(self){
-		console.log('Called pong heartbeat');
+		console.log(`Heartbeat: ${self.user.username}`);
 		self.client.isAlive = true;
 		UserModel.setActive(self.user.id);
 	}
@@ -41,7 +36,7 @@ class WebSocketConnection {
 	}
 	
 	closeHandler(self){
-		console.log('Server: Connection closed');
+		console.log(`Closed: ${self.user.username}`);
 		UserModel.setInactive(self.user.id);
 	}
 }

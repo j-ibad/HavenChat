@@ -20,7 +20,7 @@ class WebSocketWrapper {
 				clearTimeout(self.pingTimeout);
 				self.pingTimeout = setTimeout(() => {
 					self.socket.terminate();
-				}, 31000);
+				}, 121000);
 			}
 			
 			this.socket = new WebSocket(ws_url);
