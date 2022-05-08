@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS User;
 CREATE TABLE IF NOT EXISTS User (
-	id int NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+	id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	username varchar(256) NOT NULL UNIQUE,
 	password varchar(256) NOT NULL,
 	createdDate datetime,
@@ -14,5 +14,6 @@ CREATE TABLE IF NOT EXISTS Friend (
 	userId int,
 	friendId int,
 	active bit DEFAULT(0),
+	block bit DEFAULT(0),
 	createdDate datetime
 );

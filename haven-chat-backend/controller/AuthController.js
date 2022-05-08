@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/register', (req, res)=>{
 	AuthModel.register(req.body).then((retVal)=>{
 		res.json(retVal || {status: false, msg: 'An error has occured'});
-	});;
+	});
 	
 });
 

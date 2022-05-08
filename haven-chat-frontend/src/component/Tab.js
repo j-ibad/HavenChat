@@ -14,7 +14,7 @@ class Tab extends React.Component {
 	}
 	
 	render(){
-		return ( <div className="Tab" style={this.props.style}>
+		return ( <div className={`Tab ${this.props.className}`} style={this.props.style}>
 			<ul>{this.state.content.map((elem, i)=>{
 				return ( <li key={i} onClick={()=>{this.tabClickHandler(i)}}>
 					<div>{elem.props.label}</div> 

@@ -55,6 +55,7 @@ class AuthModel {
 							delete userRes[0].password;
 							retVal = {status: true, msg: 'Login successful',
 								user: {
+									id: userRes[0].id,
 									username: userRes[0].username,
 									firstName: userRes[0].firstName,
 									lastName: userRes[0].lastName,

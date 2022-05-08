@@ -8,7 +8,7 @@ import './css/App_Nav.css';
 import LandingPage from "./LandingPage.js"
 import HomePage from "./HomePage.js"
 import AboutPage from "./AboutPage.js"
-import UsersPage from "./UsersPage.js"
+import ContactsPage from "./ContactsPage.js"
 
 class App extends React.Component {
 	constructor(props){
@@ -42,8 +42,9 @@ class App extends React.Component {
 		return ( <Router> <div>
 			<nav id="HC-Nav"> <ul>
 				{!this.state.session && <li> <Link to="/about">About</Link> </li>}
+				
 				{this.state.session && <li> <Link to="/home">Home</Link> </li>}
-				{this.state.session && <li> <Link to="/users">Users</Link> </li>}
+				{this.state.session && <li> <Link to="/contacts">Contacts</Link> </li>}
 				
 				
 				{this.state.session && <li className="LoggedIn"> Logged in as <b>{this.state.session.username}</b> </li>}
@@ -55,7 +56,7 @@ class App extends React.Component {
 			  <Route path="/" element={<LandingPage onLogin={this.refreshCookie} session={this.state.session}/>}> </Route>
 			  <Route path="/home" element={<HomePage />}> </Route>
 			  <Route path="/about" element={<AboutPage />}> </Route>
-			  <Route path="/users" element={<UsersPage />}> </Route>
+			  <Route path="/contacts" element={<ContactsPage />}> </Route>
 			  <Route path="/logout" element={<Logout onLogout={this.logout}/>}> </Route>
 			</Switch>
 		</div> </Router> );
@@ -68,6 +69,9 @@ class Logout extends React.Component {
 		this.state = {
 			loggedOut: false
 		}
+	}
+	
+	componentDidMount(){
 		this.props.onLogout(this);
 	}
 	

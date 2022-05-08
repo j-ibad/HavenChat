@@ -31,3 +31,28 @@
 .Tab .TabContent{
 	margin: 0;
 }
+
+
+
+.Tab.Left ul{
+	justify-content: start;
+}
+.Tab.Left ul li{
+	flex: 0;
+}
+.Tab.Left ul li div{
+	padding: 0.5em 2em;
+}
+
+
+.Tab.Lite ul li{
+	color: var(--main-fg-primary);
+}
+.Tab.Lite ul li div{
+	background: none;
+	margin: 0.25em;
+	border-radius: 1em;
+}
+.Tab ul li div:hover{
+	background: var(--skyblue-faint);
+}

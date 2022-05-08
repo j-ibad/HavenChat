@@ -21,6 +21,23 @@ class DB_Conn {
 			});
 		});
 	}
+	
+	queryAsync(sql){
+		let lock = new Lock();
+		let retVal = {status: false, data: null};
+		lock.lock();
+		
+		this.query(sql, (err, res)=>{
+			if(err){
+				retVal.err = err;
+			}else{
+				retVal.status = true;
+				retVal.data = res;
+			}
+			lock.unlock();
+		});
+		return lock.wait().then(()=>{ return retVal; });
+	}
 }
 
 module.exports = DB_Conn;
