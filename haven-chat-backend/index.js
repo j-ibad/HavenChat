@@ -65,12 +65,34 @@ app.listen(PORT_HTTP, ()=>{
 
 
 
-
+function validateSocketJWT(cookie){
+	if(cookie){
+		let cookies = cookie.split(';');
+		for(let i in cookies){
+			let pair = cookies[i].split('=');
+			if(pair[0].trim() === JWT.tokenName){
+				let res = JWT.decodeToken(pair[1].trim());
+				if(!('error' in res)){
+					return res.token;
+				}
+			}
+		}
+	}
+	return null;
+}
 const wss = new WebSocketServer({port: PORT_WS});
-wss.on('connection', (ws)=>{
-	ws.on('message', (data)=>{
+wss.on('connection', (client, req)=>{
+	let token = validateSocketJWT(req.headers.cookie);
+	console.log(token);
+	if(!token){
+		//TODO: Send error response
+		console.log('Error');
+		return;
+	}
+	
+	client.on('message', (data)=>{
 		console.log('received: %s', data);
 	});
 	
-	ws.send('something');
+	client.send('something');
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import {Navigate} from "react-router-dom";
 
 import {api} from './util/api.js'
+import socket from './util/WebSocket.js'
 import logo from './media/logo.svg';
 import './css/LandingPage.css';
 import {Tab, TabContent} from './component/Tab.js';
@@ -47,6 +48,7 @@ class LoginForm extends React.Component{
 			if(res.data.status){
 				this.props.onLogin();
 				this.setState({ login: true });
+				socket.connect();
 			}
 		}).catch().then(()=>{
 			this.setState({ loading: false });

@@ -3,7 +3,7 @@ import {BrowserRouter as Router, Routes as Switch, Route, Link, Navigate} from "
 
 import {api} from './util/api.js'
 import Session from './util/Session.js'
-import ws from './util/WebSocket.js'
+import socket from './util/WebSocket.js'
 
 import './css/App_Nav.css';
 import LandingPage from "./LandingPage.js"
@@ -21,6 +21,10 @@ class App extends React.Component {
 		
 		this.refreshCookie = this.refreshCookie.bind(this);
 		this.logout = this.logout.bind(this);
+	}
+
+	componentDidMount(){
+		socket.connect();
 	}
 	
 	refreshCookie(){

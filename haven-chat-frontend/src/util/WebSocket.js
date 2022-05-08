@@ -1,11 +1,26 @@
-const ws = new WebSocket('ws://localhost:18072');
+class WebSocketWrapper {
+	constructor(){
+		this.socket = null;
+	}
+	
+	connect(){
+		if(!(this.socket && (this.socket.readyState === 'CONNECTING' || this.socket.readyState === 'OPEN'))){
+			this._setupConnection();
+		}
+	}
+	
+	_setupConnection(){
+		this.socket = new WebSocket('ws://localhost:18072');
+		this.socket.addEventListener('open', (e)=>{
+			this.socket.send('Client said something');
+		});
 
-ws.addEventListener('open', (e)=>{
-	ws.send('Client said something');
-});
+		this.socket.addEventListener('message', (e)=>{
+			console.log('Client received: %s', e.data);
+		});
+	}
+}
 
-ws.addEventListener('message', (e)=>{
-	console.log('Client received: %s', e.data);
-});
 
-export default ws;
+const WebSocketInstance = new WebSocketWrapper();
+export default WebSocketInstance;
