@@ -15,7 +15,6 @@ const WebSocketHandler = require('./controller/WebSocketHandler.js');
 const PORT_HTTP = 18070;
 const PORT_HTTPS = 18071;
 const PORT_WS = 18072;
-const PORT_WSS = 18073;
 const IS_PROD = (process.env.NODE_ENV || '').trim() !== 'development';
 
 const corsConfig = {
@@ -48,6 +47,7 @@ app.use('/api/user', UserRouter);
 
 
 /* [===== Serve app =====] */
+let ws_server;
 if(IS_PROD){
 	const https = require('https');
 	const httpsServer = https.createServer({
@@ -58,6 +58,13 @@ if(IS_PROD){
 	httpsServer.listen(PORT_HTTPS, '0.0.0.0', ()=>{
 		console.log(`ibad.one HTTPS Server running on port ${PORT_HTTPS}`);
 	});
+	
+	ws_server = https.createServer({
+		key: fs.readFileSync('/etc/letsencrypt/live/ibad.one/privkey.pem'),
+		cert: fs.readFileSync('/etc/letsencrypt/live/ibad.one/fullchain.pem')
+	});
+}else{
+	ws_server = http.createServer();
 }
 
 app.listen(PORT_HTTP, ()=>{
@@ -66,7 +73,7 @@ app.listen(PORT_HTTP, ()=>{
 
 
 
-const wss = new WebSocketServer({port: PORT_WS});
+const wss = new WebSocketServer(ws_server);
 wss.on('connection', WebSocketHandler.connectionHandler);
 
 const wsPingInterval = setInterval( ()=>{
@@ -76,3 +83,6 @@ const wsPingInterval = setInterval( ()=>{
 wss.on('close', function close() {
   clearInterval(wsPingInterval);
 });
+
+
+ws_server.listen(PORT_WS);

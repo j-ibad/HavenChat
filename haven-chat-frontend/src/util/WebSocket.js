@@ -1,4 +1,4 @@
-const ws_url = ((process.env.NODE_ENV || '').trim() === 'development') ? 'ws://localhost:18072': 'ws://havenchat.ibad.one:18072';
+const ws_url = ((process.env.NODE_ENV || '').trim() === 'development') ? 'ws://localhost:18072': 'wss://havenchat.ibad.one:18072';
 const wsState = {
 	connecting: 0,
 	open: 1,
