@@ -73,7 +73,7 @@ app.listen(PORT_HTTP, ()=>{
 
 
 
-const wss = new WebSocketServer(ws_server);
+const wss = new WebSocketServer({server: ws_server});
 wss.on('connection', WebSocketHandler.connectionHandler);
 
 const wsPingInterval = setInterval( ()=>{
