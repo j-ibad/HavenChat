@@ -18,6 +18,12 @@ router.post('/getFriends', (req, res)=>{
 	});
 });
 
+router.post('/getActiveFriends', (req, res)=>{
+	UserModel.getFriends(req.user.id, req.body, 1).then((retVal)=>{
+		res.json(retVal || {status: false, msg: 'An error has occured'});
+	});
+});
+
 router.post('/getFriendRequests', (req, res)=>{
 	UserModel.getFriendRequests(req.user.id, req.body).then((retVal)=>{
 		res.json(retVal || {status: false, msg: 'An error has occured'});

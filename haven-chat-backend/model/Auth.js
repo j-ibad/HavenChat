@@ -21,8 +21,8 @@ class AuthModel {
 			if(err){ lock.unlock(); return; }
 			bcrypt.hash(args.password, salt, (err2, hash)=>{
 				if(err2){ lock.unlock(); return; }
-				let sqlQuery = "INSERT INTO User (username, password, createdDate, firstName, lastName, email) ";
-				sqlQuery += `SELECT '${args.username}', '${hash}', CURRENT_TIMESTAMP(), '${args.fName}', '${args.lName}', '${args.email}' `;
+				let sqlQuery = "INSERT INTO User (username, password, firstName, lastName, email) ";
+				sqlQuery += `SELECT '${args.username}', '${hash}', '${args.fName}', '${args.lName}', '${args.email}' `;
 				sqlQuery += `WHERE NOT EXISTS (SELECT * FROM User AS U WHERE U.username='${args.username}' OR U.email='${args.email}');`;
 				
 				this.conn.query(sqlQuery, (err3, res)=>{

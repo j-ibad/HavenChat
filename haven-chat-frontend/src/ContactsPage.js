@@ -7,6 +7,7 @@ import {Tab, TabContent} from './component/Tab.js';
 import './css/Contacts.css';
 
 const searchUserFields = [
+	{key: 'active', header: 'Active'},
 	{key: 'username', header: 'Username'},
 	{key: 'firstName', header: 'First Name'},
 	{key: 'lastName', header: 'Last Name'},
@@ -22,6 +23,7 @@ const friendRequestFields = [
 ];
 
 const friendFields = [
+	{key: 'active', header: 'Active'},
 	{key: 'username', header: 'Username'},
 	{key: 'firstName', header: 'First Name'},
 	{key: 'lastName', header: 'Last Name'},
@@ -35,6 +37,7 @@ class ContactsPage extends React.Component {
 				<TabContent label="Friends"> <FriendsPane /> </TabContent> 
 				<TabContent label="Find"> <SearchUserPane /> </TabContent> 
 			</Tab>
+			<SessionRequired />
 		</div>);
 	}
 }
@@ -101,8 +104,6 @@ class FriendsPane extends React.Component {
 				? <List title="Friends" data={this.state.friends} fields={friendFields} key={this.state.filter}/>
 				: <p> No friends found </p>
 			}
-			
-			<SessionRequired />
 		</div>);
 	}
 }
@@ -220,7 +221,6 @@ class SearchUserPane extends React.Component {
 					: <p> No users found </p>
 				}
 			</div>
-			<SessionRequired />
 		</div>);
 	}
 }

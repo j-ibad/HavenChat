@@ -9,6 +9,7 @@ const WebSocketServer = require('ws').Server;
 const JWT = require('./util/JWT.js');
 const AuthRouter = require('./controller/AuthController.js');
 const UserRouter = require('./controller/UserController.js');
+const WebSocketHandler = require('./controller/WebSocketHandler.js');
 
 
 const PORT_HTTP = 18070;
@@ -30,7 +31,7 @@ app.use(cookieParser());
 
 
 /* [===== Serve front-end =====] */
-const reactRoutes = ['/home', '/logout'];
+const reactRoutes = ['/home', '/logout', '/contacts', '/livechat'];
 app.use('/', (req, res, next)=>{
 	if(reactRoutes.includes(req.path)){
 		return res.sendFile(path.join(__dirname, 'dist/index.html'));
@@ -65,34 +66,14 @@ app.listen(PORT_HTTP, ()=>{
 
 
 
-function validateSocketJWT(cookie){
-	if(cookie){
-		let cookies = cookie.split(';');
-		for(let i in cookies){
-			let pair = cookies[i].split('=');
-			if(pair[0].trim() === JWT.tokenName){
-				let res = JWT.decodeToken(pair[1].trim());
-				if(!('error' in res)){
-					return res.token;
-				}
-			}
-		}
-	}
-	return null;
-}
 const wss = new WebSocketServer({port: PORT_WS});
-wss.on('connection', (client, req)=>{
-	let token = validateSocketJWT(req.headers.cookie);
-	console.log(token);
-	if(!token){
-		//TODO: Send error response
-		console.log('Error');
-		return;
-	}
-	
-	client.on('message', (data)=>{
-		console.log('received: %s', data);
-	});
-	
-	client.send('something');
+wss.on('connection', WebSocketHandler.connectionHandler);
+
+const wsPingInterval = setInterval( ()=>{
+	WebSocketHandler.pingLoop(wss);
+	console.log('SERVER: PING');
+}, WebSocketHandler.HEARTBEAT_INTERVAL);
+
+wss.on('close', function close() {
+  clearInterval(wsPingInterval);
 });

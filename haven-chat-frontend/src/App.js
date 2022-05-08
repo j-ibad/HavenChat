@@ -10,6 +10,7 @@ import LandingPage from "./LandingPage.js"
 import HomePage from "./HomePage.js"
 import AboutPage from "./AboutPage.js"
 import ContactsPage from "./ContactsPage.js"
+import LiveChatPage from "./LiveChatPage.js"
 
 class App extends React.Component {
 	constructor(props){
@@ -40,6 +41,7 @@ class App extends React.Component {
 		}).catch().then(()=>{
 			this.setState({loggingOut: false});
 			child.setState({loggedOut: true});
+			socket.close();
 		});
 	}
   
@@ -49,6 +51,7 @@ class App extends React.Component {
 				{!this.state.session && <li> <Link to="/about">About</Link> </li>}
 				
 				{this.state.session && <li> <Link to="/home">Home</Link> </li>}
+				{this.state.session && <li> <Link to="/livechat">Live Chat</Link> </li>}
 				{this.state.session && <li> <Link to="/contacts">Contacts</Link> </li>}
 				
 				
@@ -62,6 +65,7 @@ class App extends React.Component {
 			  <Route path="/home" element={<HomePage />}> </Route>
 			  <Route path="/about" element={<AboutPage />}> </Route>
 			  <Route path="/contacts" element={<ContactsPage />}> </Route>
+			  <Route path="/livechat" element={<LiveChatPage />}> </Route>
 			  <Route path="/logout" element={<Logout onLogout={this.logout}/>}> </Route>
 			</Switch>
 		</div> </Router> );

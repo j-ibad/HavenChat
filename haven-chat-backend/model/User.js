@@ -7,15 +7,28 @@ class UserModel {
 		this.conn = new DB_Conn();
 	}
 	
+	userFilterClause(filter){
+		let sqlQueryClause = '';
+		if(filter && filter.length > 0){
+			let sqlFilter = `'${filter}%'`;
+			sqlQueryClause = `(username LIKE ${sqlFilter} OR email LIKE ${sqlFilter} OR firstName LIKE ${sqlFilter} `;
+			sqlQueryClause += `OR lastName LIKE ${sqlFilter}) ` 
+		}else{
+			sqlQueryClause = '1=1 ';
+		}
+		return sqlQueryClause
+	}
+	
 	async getUsers(uid, args){
 		Sanitizer.sqlSanitize(args);
-		let filter = `'${args.filter}%'`;
 		
-		let sqlQuery = `SELECT id, username, email, firstName, lastName FROM User WHERE ( `;
-		sqlQuery += `username LIKE ${filter} OR email LIKE ${filter} OR firstName LIKE ${filter} `;
-		sqlQuery += `OR lastName LIKE ${filter}) AND id NOT IN (SELECT ${uid} UNION `;
+		let sqlQuery = `SELECT id, username, email, firstName, lastName, `
+		sqlQuery += `CASE WHEN connectedDate > disconnectedDate THEN 1 ELSE 0 END AS active `
+		sqlQuery += `FROM User WHERE ${this.userFilterClause(args.filter)} `
+		sqlQuery += `AND id NOT IN (SELECT ${uid} UNION `;
 		sqlQuery += `SELECT userId FROM Friend WHERE friendId=${uid} AND block=0 UNION `;
-		sqlQuery += `SELECT friendId FROM Friend WHERE userId=${uid} AND block=0) LIMIT 10;`;
+		sqlQuery += `SELECT friendId FROM Friend WHERE userId=${uid} AND block=0) `
+		sqlQuery += `ORDER BY username LIMIT 10;`;
 		
 		let retVal = {status: false};
 		let res = await this.conn.queryAsync(sqlQuery);
@@ -28,13 +41,18 @@ class UserModel {
 		return retVal;
 	}
 	
-	async getFriends(uid, args){
+	async getFriends(uid, args, active=0){
 		Sanitizer.sqlSanitize(args);
 		
-		let sqlQuery = `SELECT id, username, email, firstName, lastName FROM User WHERE id IN ( `;
+		let sqlQuery = `SELECT id, username, email, firstName, lastName `
+		if(active == 0){
+			sqlQuery += `, CASE WHEN connectedDate > disconnectedDate THEN 1 ELSE 0 END AS active `
+		}
+		sqlQuery += `FROM User WHERE ${this.userFilterClause(args.filter)} AND id IN ( `;
 		sqlQuery += `SELECT userId FROM Friend WHERE friendId=${uid} AND active=1 AND block=0 UNION `;
 		sqlQuery += `SELECT friendId FROM Friend WHERE userId=${uid} AND active=1 AND block=0) `;
-		sqlQuery += `AND id <> ${uid} LIMIT 10;`;
+		sqlQuery += `AND id <> ${uid} ` + ((active != 0) ? 'AND connectedDate > disconnectedDate ' : '')
+		sqlQuery += `ORDER BY username LIMIT 10;`;
 		
 		let retVal = {status: false};
 		let res = await this.conn.queryAsync(sqlQuery);
@@ -139,6 +157,29 @@ class UserModel {
 			retVal.msg = (retVal.status) ? 'Friend removed' : 'Failed to remove friend request';
 		}
 		return retVal;
+	}
+	
+	
+	
+	async setActive(uid){
+		let sqlQuery = `UPDATE User SET connectedDate=CURRENT_TIMESTAMP WHERE id=${uid};`;
+		let res = await this.conn.queryAsync(sqlQuery);
+		let retVal = {status: (res.status && res.data.affectedRows > 0)};
+		return retVal;
+	}
+	
+	async setInactive(uid){
+		let sqlQuery = `UPDATE User SET disconnectedDate=CURRENT_TIMESTAMP WHERE id=${uid};`;
+		let res = await this.conn.queryAsync(sqlQuery);
+		let retVal = {status: (res.status && res.data.affectedRows > 0)};
+		return retVal;
+	}
+	
+	async isActive(uid){
+		let sqlQuery = `SELECT CASE WHEN connectedDate > disconnectedDate THEN 1 ELSE 0 END `;
+		sqlQuery += `AS active FROM User WHERE uid=${uid} LIMIT 1;`
+		let retVal = await this.conn.queryAsync(sqlQuery);
+		return retVal || {status: false};
 	}
 }
 
