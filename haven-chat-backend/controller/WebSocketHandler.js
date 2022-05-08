@@ -1,7 +1,7 @@
 const JWT = require('../util/JWT.js');
 const UserModel = require('../model/User.js');
 
-const HEARTBEAT_INTERVAL = 5*1000; //2*60*1000; //Every 2 minutes
+const HEARTBEAT_INTERVAL = 2*60*1000; //Every 2 minutes
 
 class WebSocketConnection {
 	constructor(client, user){
@@ -31,7 +31,7 @@ class WebSocketConnection {
 	
 	heartbeat(self){
 		console.log('Called pong heartbeat');
-		this.isAlive = true;
+		self.client.isAlive = true;
 		UserModel.setActive(self.user.id);
 	}
 	
