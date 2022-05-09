@@ -1,4 +1,5 @@
 import React from 'react';
+import forge from 'node-forge';
 
 import {api} from './util/api.js'
 import socket from './util/WebSocket.js'
@@ -57,7 +58,6 @@ class SetupChatPane extends React.Component {
 			keyP: 0
 		}
 		this.filterChangeHandler = this.filterChangeHandler.bind(this);
-		this.startChat = this.startChat.bind(this);
 	}
 	
 	componentDidMount(){ this.initData(); }
@@ -92,13 +92,9 @@ class SetupChatPane extends React.Component {
 		});
 	}
 	
-	startChat(){
-		this.props.onStartChat();
-	}
-	
 	render(){
 		return (<div>
-			<button onClick={this.startChat} disabled={(this.state.participants.length===0)}>
+			<button onClick={this.props.onStartChat} disabled={(this.state.participants.length===0)}>
 				Start Chat
 			</button>
 		
@@ -125,17 +121,18 @@ class ChatPane extends React.Component {
 		this.state = {
 			temp: "test"
 		}
-		this.onBack = this.onBack.bind(this);
 	}
 	
-	onBack(){
-		this.props.onBack();
+	componentDidMount(){
+		let ed25519 = forge.pki.ed25519;
+		let keypair = ed25519.generateKeyPair();
+		console.log(keypair);
 	}
 	
 	render(){
 		return (<div>
 			<h3> Chat </h3>
-			<button onClick={this.onBack}></button>
+			<button onClick={this.props.onBack}></button>
 		</div>);
 	}
 }

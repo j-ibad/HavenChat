@@ -1,3 +1,5 @@
+const forge = require('node-forge');
+
 const JWT = require('../util/JWT.js');
 const UserModel = require('../model/User.js');
 
