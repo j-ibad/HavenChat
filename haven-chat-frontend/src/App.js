@@ -12,12 +12,13 @@ import AboutPage from "./AboutPage.js"
 import ContactsPage from "./ContactsPage.js"
 import LiveChatPage from "./LiveChatPage.js"
 
-class App extends React.Component {
+export default class App extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
 			session: Session.getSession(),
-			loggingOut: true
+			loggingOut: true,
+			login: 0
 		};
 		
 		this.refreshCookie = this.refreshCookie.bind(this);
@@ -57,11 +58,19 @@ class App extends React.Component {
 				
 				{this.state.session && <li className="LoggedIn"> Logged in as <b>{this.state.session.username}</b> </li>}
 				{this.state.session && <li className="Logout"> <Link to="/logout"> Logout </Link> </li>}
-				{!this.state.session && <li className="Login"> <Link to="/"> Login | Sign-Up </Link> </li>}
+				{!this.state.session && <li className="Login"> 
+					<Link to="/" onClick={()=>{this.setState({login: 0})}}> Login </Link>
+				</li>}
+				{!this.state.session && <li className="Login">
+					<Link to="/" onClick={()=>{this.setState({login: 1})}}> Sign-Up </Link>
+				</li>}
 			</ul> </nav>
 
 			<Switch>
-			  <Route path="/" element={<LandingPage onLogin={this.refreshCookie} session={this.state.session}/>}> </Route>
+			  <Route path="/" element={
+				  <LandingPage onLogin={this.refreshCookie} session={this.state.session}
+					login={this.state.login} key={this.state.login}/>}>
+			  </Route>
 			  <Route path="/home" element={<HomePage />}> </Route>
 			  <Route path="/about" element={<AboutPage />}> </Route>
 			  <Route path="/contacts" element={<ContactsPage />}> </Route>
@@ -93,5 +102,3 @@ class Logout extends React.Component {
 		</div> );
 	}	
 }
-
-export default App;

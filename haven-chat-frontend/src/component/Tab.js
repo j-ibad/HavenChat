@@ -6,7 +6,7 @@ import '../css/Tab.css';
 class Tab extends React.Component {
 	constructor(props){
 		super(props);
-		this.state = { content: this.props.children, active: 0 };
+		this.state = { content: this.props.children, active: this.props.active || 0 };
 	}
 	
 	tabClickHandler(i){
@@ -15,11 +15,11 @@ class Tab extends React.Component {
 	
 	render(){
 		return ( <div className={`Tab ${this.props.className}`} style={this.props.style}>
-			<ul>{this.state.content.map((elem, i)=>{
+			{!this.props.noTab && <ul>{this.state.content.map((elem, i)=>{
 				return ( <li key={i} onClick={()=>{this.tabClickHandler(i)}}>
 					<div>{elem.props.label}</div> 
 				</li> );
-			})}</ul>
+			})}</ul>}
 			
 			<div className="TabContent">
 				{this.state.content[ this.state.active ]}

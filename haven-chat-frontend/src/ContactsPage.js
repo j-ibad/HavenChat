@@ -30,10 +30,10 @@ const friendFields = [
 	{key: 'unfriendBtn', header: ''}
 ]
 
-class ContactsPage extends React.Component {
+export default class ContactsPage extends React.Component {
 	render(){
 		return(<div className="Contacts">
-			<Tab style={{width: '100%', margin: '1em 4em', border: 'none'}} className="Left Lite">
+			<Tab style={{width: '90%', margin: '1em 5%', border: 'none'}} className="Left Lite">
 				<TabContent label="Friends"> <FriendsPane /> </TabContent> 
 				<TabContent label="Find"> <SearchUserPane /> </TabContent> 
 			</Tab>
@@ -224,5 +224,3 @@ class SearchUserPane extends React.Component {
 		</div>);
 	}
 }
-
-export default ContactsPage;

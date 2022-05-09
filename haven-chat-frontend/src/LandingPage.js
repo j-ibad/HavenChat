@@ -3,18 +3,18 @@ import {Navigate} from "react-router-dom";
 
 import {api} from './util/api.js'
 import socket from './util/WebSocket.js'
+import {Tab, TabContent} from './component/Tab.js';
 import logo from './media/logo.svg';
 import './css/LandingPage.css';
-import {Tab, TabContent} from './component/Tab.js';
 
 
-class LandingPage extends React.Component{
+export default class LandingPage extends React.Component{
 	render(){
 		return ( <div className="LandingPage">
 			<header className="LandingPage-header">
 				<img src={logo} className="LandingPage-logo" alt="logo" />
 				<p> Welcome to HavenChat </p>
-				<Tab style={{width: "70%", margin: "0 10%"}}>
+				<Tab style={{width: "70%", margin: "0 10%"}} active={this.props.login}>
 					<TabContent label="Login"> <LoginForm onLogin={this.props.onLogin} session={this.props.session}/> </TabContent> 
 					<TabContent label="Register"> <RegistrationForm /> </TabContent> 
 				</Tab>
@@ -112,6 +112,13 @@ class RegistrationForm extends React.Component{
 		this.setState({ loading: true, status: null });
 		api.post('/auth/register', this.state.form).then((res)=>{
 			this.setState({ status: res.data.status, msg: res.data.msg });
+			if(res.data.status){
+				this.setState({
+					fName: "", lName: "",
+					email: "", username: "", 
+					password: ""
+				});
+			}
 		}).catch().then(()=>{
 			this.setState({ loading: false });
 		});
@@ -148,6 +155,3 @@ class RegistrationForm extends React.Component{
 		</div> );
 	}
 }
-
-
-export default LandingPage;

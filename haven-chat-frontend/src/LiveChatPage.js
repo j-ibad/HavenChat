@@ -1,8 +1,10 @@
 import React from 'react';
 
 import {api} from './util/api.js'
+import socket from './util/WebSocket.js'
 import SessionRequired from './component/SessionRequired.js'
 import List from './component/List.js'
+import {Tab, TabContent} from './component/Tab.js';
 import './css/LiveChat.css';
 
 const friendFields = [
@@ -18,7 +20,34 @@ const partipantFields = [
 	{key: 'removeBtn', header: ''}
 ]
 
-class LiveChatPage extends React.Component {
+
+export default class LiveChatPage extends React.Component {
+	constructor(props){
+		super(props);
+		this.state = {
+			active: this.props.active || 0
+		}
+	}
+	
+	switchContent(i){ this.setState({active: i}); }
+	
+	render(){
+		return(<div className="LiveChat">
+			<Tab style={{width: '90%', margin: '1em 5%', border: 'none'}} noTab={true} active={this.state.active} key={this.state.active}>
+				<TabContent label="SetupChat">
+					<SetupChatPane onStartChat={()=>{this.switchContent(1)}}/>
+				</TabContent> 
+				<TabContent label="Chat"> 
+					<ChatPane onBack={()=>{this.switchContent(0);}}/> 
+				</TabContent> 
+			</Tab>
+			<SessionRequired />
+		</div>);
+	}
+}
+
+
+class SetupChatPane extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
@@ -28,16 +57,12 @@ class LiveChatPage extends React.Component {
 			keyP: 0
 		}
 		this.filterChangeHandler = this.filterChangeHandler.bind(this);
+		this.startChat = this.startChat.bind(this);
 	}
 	
-	componentDidMount(){
-		this.initData();
-	}
+	componentDidMount(){ this.initData(); }
 	
-	initData(){
-		this.getActiveFriends(this.state.filter);
-	}
-	
+	initData(){ this.getActiveFriends(this.state.filter); }
 	
 	filterChangeHandler(e){
 		const filter = (e.target && e.target.value) || "";
@@ -48,30 +73,35 @@ class LiveChatPage extends React.Component {
 	}
 	
 	addParticipant(id){
-		console.log(id);
 		let nFriends = this.state.friends.slice();
 		let nParticipants = this.state.participants.slice();
+		let nKeyP = this.state.key + 1;
 		let targetIndex = nFriends.findIndex((elem)=>{return elem.id === id});
 		nParticipants.push( nFriends.splice(targetIndex, 1)[0] );
-		
-		this.setState(prevState=>{
-			return { friends: nFriends, participants: nParticipants, keyP: prevState.keyP+1 };
-		});
-		
+		this.setState({ friends: nFriends, participants: nParticipants, keyP: nKeyP });
 	}
 	
 	getActiveFriends(filter=""){
 		let self = this;
 		api.post('/user/getActiveFriends', {filter: filter}).then((res)=>{
 			if(res.data && filter === this.state.filter){
-				self.setState({friends: res.data.friends || []});
+				let nFriends = res.data.friends;
+				let participantIds = this.state.participants.map((elem)=>{return elem.id});
+				self.setState({friends: nFriends.filter((elem)=>{ return !participantIds.includes(elem.id)}) || []});
 			}
 		});
 	}
 	
+	startChat(){
+		this.props.onStartChat();
+	}
+	
 	render(){
 		return (<div>
-			
+			<button onClick={this.startChat} disabled={(this.state.participants.length===0)}>
+				Start Chat
+			</button>
+		
 			{(this.state.participants.length > 0)
 				? <List title="Participants" data={this.state.participants} fields={partipantFields} key={this.state.keyP}/>
 				: <p> No chat participants </p>
@@ -84,11 +114,28 @@ class LiveChatPage extends React.Component {
 				? <List title="Friends" data={this.state.friends} fields={friendFields} key={this.state.filter} onRowClick={(id)=>{this.addParticipant(id)}}/>
 				: <p> No active friends found </p>
 			}
-			
-			<SessionRequired />
 		</div>);
 	}
 }
 
 
-export default LiveChatPage;
+class ChatPane extends React.Component {
+	constructor(props){
+		super(props);
+		this.state = {
+			temp: "test"
+		}
+		this.onBack = this.onBack.bind(this);
+	}
+	
+	onBack(){
+		this.props.onBack();
+	}
+	
+	render(){
+		return (<div>
+			<h3> Chat </h3>
+			<button onClick={this.onBack}></button>
+		</div>);
+	}
+}

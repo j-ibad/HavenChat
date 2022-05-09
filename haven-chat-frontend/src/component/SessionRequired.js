@@ -4,7 +4,7 @@ import {Navigate} from "react-router-dom";
 import Session from '../util/Session.js'
 
 
-class SessionRequired extends React.Component {
+export default class SessionRequired extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
@@ -18,6 +18,3 @@ class SessionRequired extends React.Component {
 		</div> );
 	}	
 }
-
-
-export default SessionRequired;

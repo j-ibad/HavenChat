@@ -4,7 +4,7 @@ import '../css/List.css';
 
 const defaultOnRowClick = (i)=>{};
 
-class List extends React.Component {
+export default class List extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
@@ -41,5 +41,3 @@ class List extends React.Component {
 		</div>);
 	}
 }
-
-export default List;
