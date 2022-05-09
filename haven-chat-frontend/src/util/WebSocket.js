@@ -61,7 +61,6 @@ class WebSocketWrapper {
 			this.socket.close();
 		}
 	}
-	
 }
 
 

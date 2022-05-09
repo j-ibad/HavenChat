@@ -2,11 +2,15 @@ import React from 'react';
 import forge from 'node-forge';
 
 import {api} from './util/api.js'
-import socket from './util/WebSocket.js'
+import chatSocket from './util/ChatSocket.js'
 import SessionRequired from './component/SessionRequired.js'
 import List from './component/List.js'
 import {Tab, TabContent} from './component/Tab.js';
 import './css/LiveChat.css';
+
+const rsa = forge.pki.rsa;
+const pki = forge.pki;
+
 
 const friendFields = [
 	{key: 'username', header: 'Username'},
@@ -26,20 +30,28 @@ export default class LiveChatPage extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			active: this.props.active || 0
+			active: this.props.active || 0,
+			chatConfig: {
+				participants: [],
+				initiator: false
+			}
 		}
 	}
 	
 	switchContent(i){ this.setState({active: i}); }
+	setupChat(chatConfig){
+		this.setState({chatConfig: chatConfig});
+		this.switchContent(1);
+	}
 	
 	render(){
 		return(<div className="LiveChat">
 			<Tab style={{width: '90%', margin: '1em 5%', border: 'none'}} noTab={true} active={this.state.active} key={this.state.active}>
 				<TabContent label="SetupChat">
-					<SetupChatPane onStartChat={()=>{this.switchContent(1)}}/>
+					<SetupChatPane onStartChat={(obj)=>{this.setupChat(obj)}}/>
 				</TabContent> 
 				<TabContent label="Chat"> 
-					<ChatPane onBack={()=>{this.switchContent(0);}}/> 
+					<ChatPane onBack={()=>{this.switchContent(0);}} chatConfig={this.state.chatConfig}/> 
 				</TabContent> 
 			</Tab>
 			<SessionRequired />
@@ -58,6 +70,7 @@ class SetupChatPane extends React.Component {
 			keyP: 0
 		}
 		this.filterChangeHandler = this.filterChangeHandler.bind(this);
+		this.startChat = this.startChat.bind(this);
 	}
 	
 	componentDidMount(){ this.initData(); }
@@ -92,9 +105,16 @@ class SetupChatPane extends React.Component {
 		});
 	}
 	
+	startChat(){
+		this.props.onStartChat({
+			participants: this.state.participants,
+			initiator: true
+		});
+	}
+	
 	render(){
 		return (<div>
-			<button onClick={this.props.onStartChat} disabled={(this.state.participants.length===0)}>
+			<button onClick={this.startChat} disabled={(this.state.participants.length===0)}>
 				Start Chat
 			</button>
 		
@@ -102,7 +122,6 @@ class SetupChatPane extends React.Component {
 				? <List title="Participants" data={this.state.participants} fields={partipantFields} key={this.state.keyP}/>
 				: <p> No chat participants </p>
 			}
-			
 			
 			<input type="text" onChange={this.filterChangeHandler} placeholder="Search for Active Friends" />
 			
@@ -118,21 +137,36 @@ class SetupChatPane extends React.Component {
 class ChatPane extends React.Component {
 	constructor(props){
 		super(props);
-		this.state = {
-			temp: "test"
-		}
+		let chatConfig = this.props.chatConfig;
+		
+		rsa.generateKeyPair({bits: 2048, workers: 2}, (err, keyPair)=>{
+			let privKey = keyPair.privateKey || '';
+			let pubKey = keyPair.publicKey || '';
+			
+			let participants = (chatConfig && chatConfig.participants) || [];
+			
+			this.state = {
+				privKey: privKey,
+				pubKey: pubKey,
+				secret: '',
+				chat: [],
+				participants: participants
+			}
+			
+			if(chatConfig && chatConfig.initiator){
+				chatSocket.request(pki.publicKeyToPem(pubKey), participants);
+			}
+		});
 	}
 	
-	componentDidMount(){
-		let ed25519 = forge.pki.ed25519;
-		let keypair = ed25519.generateKeyPair();
-		console.log(keypair);
+	componentWillUnmount(){
+		console.log('Unmount');
 	}
 	
 	render(){
 		return (<div>
 			<h3> Chat </h3>
-			<button onClick={this.props.onBack}></button>
+			<button onClick={this.props.onBack}>Back</button>
 		</div>);
 	}
 }

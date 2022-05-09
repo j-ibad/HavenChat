@@ -1,4 +1,6 @@
 const forge = require('node-forge');
+const rsa = forge.pki.rsa;
+const pki = forge.pki;
 
 const JWT = require('../util/JWT.js');
 const UserModel = require('../model/User.js');
@@ -53,7 +55,8 @@ class WebSocketConnection {
 	chatMsgHandler(self, data){
 		switch(data.name){
 			case "request":
-				console.log("RECEIVED CHAT REQUESTS");
+				console.log(`RECEIVED CHAT REQUESTS from ${self.user.username}`);
+				console.log( pki.publicKeyFromPem(data.pubKey).encrypt('test') );
 		}
 	}
 	
