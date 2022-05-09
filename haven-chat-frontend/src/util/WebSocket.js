@@ -10,6 +10,9 @@ const wsState = {
 class WebSocketWrapper {
 	constructor(){
 		this.socket = null;
+		this.msgHandler = {
+			
+		}
 	}
 	
 	connect(){
@@ -19,18 +22,19 @@ class WebSocketWrapper {
 			function heartbeat() {
 				clearTimeout(self.pingTimeout);
 				self.pingTimeout = setTimeout(() => {
-					self.socket.terminate();
+					self.socket.close();
 				}, 121000);
 			}
 			
 			this.socket = new WebSocket(ws_url);
 			this.socket.addEventListener('open', (e)=>{
-				this.socket.send('Client said something');
+				this.send("log", "Hello server!");
 				heartbeat();
 			});
 
 			this.socket.addEventListener('message', (e)=>{
-				console.log('Client received: %s', e.data);
+				let msgObj = JSON.parse(e.data);
+				console.log('Client received: %s', JSON.stringify(msgObj));
 			});
 			
 			this.socket.addEventListener('ping',  heartbeat);
@@ -39,6 +43,17 @@ class WebSocketWrapper {
 				clearTimeout(self.pingTimeout);
 			});
 		}
+	}
+	
+	chatMsgHandler(self, data){
+		switch(data.name){
+			case "request":
+				console.log("RECEIVED CHAT REQUESTS");
+		}
+	}
+	
+	send(event, data){
+		this.socket.send(JSON.stringify({event: event, data: data}));
 	}
 	
 	close(){

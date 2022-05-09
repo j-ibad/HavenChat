@@ -15,7 +15,7 @@ class List extends React.Component {
 	//Add a key to root to reflect changes to props
 	render(){
 		let self = this;
-		return ( <div className="List" key={self.props.key || ""}>
+		return ( <div className="List">
 			{self.props.title && <h4> {self.props.title} </h4>}
 			<table>
 				{self.props.fields[0].header && <thead><tr>

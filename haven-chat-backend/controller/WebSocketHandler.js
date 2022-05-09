@@ -12,32 +12,51 @@ class WebSocketConnection {
 		self.client.closeHandler = ()=>{
 			UserModel.setInactive(self.user.id);
 		}
+		self.msgHandlers = {
+			chat: self.chatMsgHandler
+		}
+		
 		self.onConnection();
 	}
 	
 	onConnection(){
 		let self = this;
-		self.client.on('message', (data)=>{self.messageHandler(self, data)});
-		self.client.on('pong', ()=>{self.heartbeat(self)});
-		self.client.on('close', (data)=>{self.closeHandler(self)});
+		// Pass messages to proper message handler
+		self.client.on('message', (data)=>{
+			console.log(data.toString());
+			let msgObj = JSON.parse(data);
+			console.log(msgObj);
+			let msgHandler = self.msgHandlers[msgObj.event];
+			if(msgHandler){
+				msgHandler(self, msgObj.data);
+			}else{
+				self.send("log", "Hello!");
+			}
+		});
+		
+		// Heartbeat
+		self.client.on('pong', ()=>{
+			self.client.isAlive = true;
+			UserModel.setActive(self.user.id);
+		});
+		
+		// Close handler
+		self.client.on('close', (data)=>{
+			UserModel.setInactive(self.user.id);
+		});
 		
 		UserModel.setActive(self.user.id);
 	}
 	
-	heartbeat(self){
-		// console.log(`Heartbeat: ${self.user.username}`);
-		self.client.isAlive = true;
-		UserModel.setActive(self.user.id);
+	chatMsgHandler(self, data){
+		switch(data.name){
+			case "request":
+				console.log("RECEIVED CHAT REQUESTS");
+		}
 	}
 	
-	messageHandler(self, data){
-		// console.log('received: %s', data);
-		self.client.send('Hello');
-	}
-	
-	closeHandler(self){
-		// console.log(`Closed: ${self.user.username}`);
-		UserModel.setInactive(self.user.id);
+	send(event, data){
+		this.client.send(JSON.stringify({event: event, data: data}));
 	}
 }
 
