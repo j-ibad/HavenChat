@@ -55,17 +55,20 @@ class ChatSocket {
 	}
 	
 	accept(sid){
-		rsa.generateKeyPair({bits: 2048, workers: 2}, (err, keyPair)=>{
-			this.privKey = keyPair.privateKey;
-			this.pubKey = keyPair.publicKey;
-			this.participants = [];  // Start empty. Add as they accept.
-			
-			socket.send(chatEvent, { 
-				name: 'accept',
-				sid,
-				pubKey: pki.publicKeyToPem(this.pubKey)
+		if(!this.active){
+			this.active = true;
+			rsa.generateKeyPair({bits: 2048, workers: 2}, (err, keyPair)=>{
+				this.privKey = keyPair.privateKey;
+				this.pubKey = keyPair.publicKey;
+				this.participants = [];  // Start empty. Add as they accept.
+				
+				socket.send(chatEvent, { 
+					name: 'accept',
+					sid,
+					pubKey: pki.publicKeyToPem(this.pubKey)
+				});
 			});
-		});
+		}
 	}
 	
 	deny(){ socket.send(chatEvent, {name: 'deny'}); }
