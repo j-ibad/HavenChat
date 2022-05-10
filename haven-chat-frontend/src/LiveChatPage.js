@@ -1,5 +1,4 @@
 import React from 'react';
-import forge from 'node-forge';
 
 import {api} from './util/api.js'
 import chatSocket from './util/ChatSocket.js'
@@ -7,9 +6,6 @@ import SessionRequired from './component/SessionRequired.js'
 import List from './component/List.js'
 import {Tab, TabContent} from './component/Tab.js';
 import './css/LiveChat.css';
-
-const rsa = forge.pki.rsa;
-const pki = forge.pki;
 
 
 const friendFields = [
@@ -29,18 +25,19 @@ const partipantFields = [
 export default class LiveChatPage extends React.Component {
 	constructor(props){
 		super(props);
+		console.log(this.props.invite);
 		this.state = {
-			active: this.props.active || 0,
-			chatConfig: {
+			active: (this.props.invite && 1) || 0,
+			chatConfig: this.props.invite || {
 				participants: [],
-				initiator: false
+				sid: 0
 			}
 		}
 	}
 	
 	switchContent(i){ this.setState({active: i}); }
 	setupChat(chatConfig){
-		this.setState({chatConfig: chatConfig});
+		this.setState({chatConfig: Object.assign(chatConfig, {sid: 0})});
 		this.switchContent(1);
 	}
 	
@@ -80,7 +77,7 @@ class SetupChatPane extends React.Component {
 	filterChangeHandler(e){
 		const filter = (e.target && e.target.value) || "";
 		let self = this;
-		this.setState({filter: filter}, ()=>{
+		this.setState({filter}, ()=>{
 			self.getActiveFriends(filter);
 		});
 	}
@@ -96,7 +93,7 @@ class SetupChatPane extends React.Component {
 	
 	getActiveFriends(filter=""){
 		let self = this;
-		api.post('/user/getActiveFriends', {filter: filter}).then((res)=>{
+		api.post('/user/getActiveFriends', {filter}).then((res)=>{
 			if(res.data && filter === this.state.filter){
 				let nFriends = res.data.friends;
 				let participantIds = this.state.participants.map((elem)=>{return elem.id});
@@ -107,8 +104,7 @@ class SetupChatPane extends React.Component {
 	
 	startChat(){
 		this.props.onStartChat({
-			participants: this.state.participants,
-			initiator: true
+			participants: this.state.participants
 		});
 	}
 	
@@ -138,25 +134,12 @@ class ChatPane extends React.Component {
 	constructor(props){
 		super(props);
 		let chatConfig = this.props.chatConfig;
-		
-		rsa.generateKeyPair({bits: 2048, workers: 2}, (err, keyPair)=>{
-			let privKey = keyPair.privateKey || '';
-			let pubKey = keyPair.publicKey || '';
-			
-			let participants = (chatConfig && chatConfig.participants) || [];
-			
-			this.state = {
-				privKey: privKey,
-				pubKey: pubKey,
-				secret: '',
-				chat: [],
-				participants: participants
-			}
-			
-			if(chatConfig && chatConfig.initiator){
-				chatSocket.request(pki.publicKeyToPem(pubKey), participants);
-			}
-		});
+		console.log(chatConfig);
+		if(chatConfig.sid === 0){
+			chatSocket.request({participants: chatConfig.participants});
+		}else{
+			chatSocket.accept(chatConfig.sid);
+		}
 	}
 	
 	componentWillUnmount(){

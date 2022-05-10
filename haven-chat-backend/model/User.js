@@ -1,6 +1,5 @@
 const DB_Conn = require('./DB_Conn.js');
 const Sanitizer = require('../util/Sanitize.js');
-const Lock = require('../util/Lock.js');
 
 class UserModel {
 	constructor(){
@@ -21,6 +20,7 @@ class UserModel {
 	
 	async getUsers(uid, args){
 		Sanitizer.sqlSanitize(args);
+		uid = Number(uid);
 		
 		let sqlQuery = `SELECT id, username, email, firstName, lastName, `
 		sqlQuery += `CASE WHEN connectedDate > disconnectedDate THEN 1 ELSE 0 END AS active `
@@ -43,6 +43,8 @@ class UserModel {
 	
 	async getFriends(uid, args, active=0){
 		Sanitizer.sqlSanitize(args);
+		uid = Number(uid);
+		active = Number(active);
 		
 		let sqlQuery = `SELECT id, username, email, firstName, lastName `
 		if(active == 0){
@@ -67,6 +69,7 @@ class UserModel {
 	
 	async getFriendRequests(uid, args){
 		Sanitizer.sqlSanitize(args);
+		uid = Number(uid);
 		
 		let sqlQuery = `SELECT id, username, email, firstName, lastName FROM User WHERE id IN ( `;
 		sqlQuery += `SELECT userId FROM Friend WHERE friendId=${uid} AND active=0 AND block=0) `;
@@ -85,7 +88,8 @@ class UserModel {
 	
 	async sendFriendRequest(uid, args){
 		Sanitizer.sqlSanitize(args);
-		let targetId = args.targetId;
+		uid = Number(uid);
+		let targetId = Number(args.targetId);
 		
 		let sqlQuery = `INSERT INTO Friend(userId, friendId, createdDate) `
 		sqlQuery += `SELECT ${uid}, ${targetId}, CURRENT_TIMESTAMP() `
@@ -106,7 +110,8 @@ class UserModel {
 	
 	async acceptFriendRequest(uid, args){
 		Sanitizer.sqlSanitize(args);
-		let targetId = args.targetId;
+		uid = Number(uid);
+		let targetId = Number(args.targetId);
 		
 		let sqlQuery = `UPDATE Friend SET active=1 WHERE userId=${targetId} `
 		sqlQuery += `AND friendId=${uid} AND active=0 AND block=0;`
@@ -124,7 +129,8 @@ class UserModel {
 	
 	async denyFriendRequest(uid, args){
 		Sanitizer.sqlSanitize(args);
-		let targetId = args.targetId;
+		uid = Number(uid);
+		let targetId = Number(args.targetId);
 		
 		let sqlQuery = `DELETE FROM Friend WHERE friendId=${uid} AND `
 		sqlQuery += `userId=${targetId} AND block=0 AND active=0;`
@@ -142,7 +148,8 @@ class UserModel {
 	
 	async deleteFriend(uid, args){
 		Sanitizer.sqlSanitize(args);
-		let targetId = args.targetId;
+		uid = Number(uid);
+		let targetId = Number(args.targetId);
 		
 		let sqlQuery = `DELETE FROM Friend WHERE block=0 AND active=1 `
 		sqlQuery += ` AND ( (userId=${uid} AND friendId=${targetId}) OR `
@@ -162,6 +169,8 @@ class UserModel {
 	
 	
 	async setActive(uid){
+		uid = Number(uid);
+		
 		let sqlQuery = `UPDATE User SET connectedDate=CASE `
 		sqlQuery += `WHEN CURRENT_TIMESTAMP <= disconnectedDate `
 		sqlQuery += `THEN TIMESTAMPADD(SECOND, 1, disconnectedDate) `
@@ -173,6 +182,8 @@ class UserModel {
 	}
 	
 	async setInactive(uid){
+		uid = Number(uid);
+		
 		let sqlQuery = `UPDATE User SET disconnectedDate=CASE `
 		sqlQuery += `WHEN CURRENT_TIMESTAMP <= connectedDate `
 		sqlQuery += `THEN TIMESTAMPADD(SECOND, 1, connectedDate) `
@@ -184,6 +195,8 @@ class UserModel {
 	}
 	
 	async isActive(uid){
+		uid = Number(uid);
+		
 		let sqlQuery = `SELECT CASE WHEN connectedDate > disconnectedDate THEN 1 ELSE 0 END `;
 		sqlQuery += `AS active FROM User WHERE uid=${uid} LIMIT 1;`
 		let retVal = await this.conn.queryAsync(sqlQuery);

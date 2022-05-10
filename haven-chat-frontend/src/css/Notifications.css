@@ -1,0 +1,25 @@
+.NotificationsContainer {
+	position: absolute;
+	top: 2.5em;
+	left: 0;
+	width: 100%;
+}
+
+.Notification {
+	margin: 5%;
+	border-radius: 1em;
+}
+
+.ChatNotification {
+	padding: 0.4em;
+	background: var(--dark-skyblue);
+}
+
+.ChatNotification .AcceptBtn{ background: var(--bg-success); }
+
+.ChatNotification .DenyBtn{ background: var(--bg-error); }
+
+.ChatNotification .AcceptBtn .DenyBtn {
+	border: none;
+	border-radius: 0.75em;
+}

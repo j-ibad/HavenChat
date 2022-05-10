@@ -3,8 +3,11 @@
 	--main-fg-primary: #E0E0E0;
 	--main-fg-secondary: #202020;
 	
-	--skyblue-faint: #87CEEB88;
 	--skyblue: #87CEEB;
+	--skyblue-faint: #87CEEB88;
+	--skyblue-x-faint: #87CEEB22;
+	
+	--dark-skyblue: #216885;
 	
 	--bg-success: #90EE9088;
 	--bg-error: #FF7F8A88;

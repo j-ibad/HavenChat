@@ -3,9 +3,10 @@ import {BrowserRouter as Router, Routes as Switch, Route, Link, Navigate} from "
 
 import {api} from './util/api.js'
 import Session from './util/Session.js'
-import socket from './util/WebSocket.js'
+import Socket from './util/WebSocket.js'
 
 import './css/App_Nav.css';
+import ChatNotifications from "./component/ChatNotifications.js"
 import LandingPage from "./LandingPage.js"
 import HomePage from "./HomePage.js"
 import AboutPage from "./AboutPage.js"
@@ -18,6 +19,8 @@ export default class App extends React.Component {
 		this.state = {
 			session: Session.getSession(),
 			loggingOut: true,
+			invite: null,
+			inviteKey: '',
 			login: 0
 		};
 		
@@ -26,7 +29,7 @@ export default class App extends React.Component {
 	}
 
 	componentDidMount(){
-		socket.connect();
+		Socket.connect();
 	}
 	
 	refreshCookie(){
@@ -42,8 +45,12 @@ export default class App extends React.Component {
 		}).catch().then(()=>{
 			this.setState({loggingOut: false});
 			child.setState({loggedOut: true});
-			socket.close();
+			Socket.close();
 		});
+	}
+	
+	acceptChat(invite){
+		this.setState({invite, inviteKey: invite.sid});
 	}
   
 	render(){
@@ -74,31 +81,29 @@ export default class App extends React.Component {
 			  <Route path="/home" element={<HomePage />}> </Route>
 			  <Route path="/about" element={<AboutPage />}> </Route>
 			  <Route path="/contacts" element={<ContactsPage />}> </Route>
-			  <Route path="/livechat" element={<LiveChatPage />}> </Route>
+			  <Route path="/livechat" element={<LiveChatPage invite={this.state.invite} key={this.state.inviteKey}/>}> </Route>
 			  <Route path="/logout" element={<Logout onLogout={this.logout}/>}> </Route>
 			</Switch>
+			
+			<ChatNotifications onAccept={(obj)=>{this.acceptChat(obj);}}/>
 		</div> </Router> );
 	}
 }
 
+
 class Logout extends React.Component {
 	constructor(props){
 		super(props);
-		this.state = {
-			loggedOut: false
-		}
+		this.state = { loggedOut: false }
 	}
 	
-	componentDidMount(){
-		this.props.onLogout(this);
-	}
+	componentDidMount(){ this.props.onLogout(this); }
 	
 	render(){
 		return (  <div>
 			{this.state.loggedOut
 				? <Navigate to="/" />
-				: <p> Logging out ... </p>
-			}
+				: <p> Logging out ... </p> }
 		</div> );
-	}	
+	}
 }

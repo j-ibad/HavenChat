@@ -1,23 +1,23 @@
-const forge = require('node-forge');
-const rsa = forge.pki.rsa;
-const pki = forge.pki;
-
 const JWT = require('../util/JWT.js');
 const UserModel = require('../model/User.js');
 
-const HEARTBEAT_INTERVAL = 2*60*1000; //Every 2 minutes
+const ChatSocketHandler = require('./ChatSocketHandler.js');
+
+const HEARTBEAT_INTERVAL = 120000; //Every 2 minutes
 
 class WebSocketConnection {
-	constructor(client, user){
+	constructor(server, client, user){
 		let self = this;
+		self.server = server;
 		self.client = client;
-		self.user = user;
+		self.client.user = self.user = user;
 		self.client.isAlive = true;
 		self.client.closeHandler = ()=>{
 			UserModel.setInactive(self.user.id);
 		}
+		self.chat = new ChatSocketHandler(self);
 		self.msgHandlers = {
-			chat: self.chatMsgHandler
+			chat: self.chat.chatMsgHandler
 		}
 		
 		self.onConnection();
@@ -27,14 +27,13 @@ class WebSocketConnection {
 		let self = this;
 		// Pass messages to proper message handler
 		self.client.on('message', (data)=>{
-			console.log(data.toString());
 			let msgObj = JSON.parse(data);
-			console.log(msgObj);
+			console.log(msgObj.event);
 			let msgHandler = self.msgHandlers[msgObj.event];
 			if(msgHandler){
 				msgHandler(self, msgObj.data);
 			}else{
-				self.send("log", "Hello!");
+				// self.send("log", "Hello!");  // REMOVE ME
 			}
 		});
 		
@@ -52,22 +51,20 @@ class WebSocketConnection {
 		UserModel.setActive(self.user.id);
 	}
 	
-	chatMsgHandler(self, data){
-		switch(data.name){
-			case "request":
-				console.log(`RECEIVED CHAT REQUESTS from ${self.user.username}`);
-				console.log( pki.publicKeyFromPem(data.pubKey).encrypt('test') );
-		}
+	send(event, data, id=0){
+		let tmpSocket = (id === 0) 
+			? this.client 
+			: Array.from(this.server.clients).find(elem => elem.user.id==id);
+			
+		tmpSocket && tmpSocket.send(JSON.stringify({event: event, data: data}));
 	}
 	
-	send(event, data){
-		this.client.send(JSON.stringify({event: event, data: data}));
-	}
+	error(msg){ this.send("error", {msg: msg}); }
 }
 
 
 module.exports = {
-	connectionHandler: function(client, req){
+	connectionHandler: function(server, client, req){
 		let token = JWT.validateRawCookie(req.headers.cookie);
 		console.log(token && token.username);
 		if(!token){
@@ -75,7 +72,7 @@ module.exports = {
 			return;
 		}
 		
-		let connection = new WebSocketConnection(client, token);
+		let connection = new WebSocketConnection(server, client, token);
 	},
 	
 	pingLoop: function(server){

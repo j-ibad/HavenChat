@@ -17,3 +17,18 @@ CREATE TABLE IF NOT EXISTS Friend (
 	block bit DEFAULT(0),
 	createdDate datetime
 );
+
+CREATE TABLE IF NOT EXISTS ChatSession (
+	id bigint NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	secret varchar(256) NOT NULL,
+	createdDate timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS ChatParticipants (
+	sid bigint NOT NULL,
+	userId int
+);
+
+DELETE FROM ChatParticipants;
+DELETE FROM ChatSession;
+ALTER TABLE ChatSession AUTO_INCREMENT=1;

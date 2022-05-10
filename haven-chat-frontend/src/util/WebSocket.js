@@ -1,3 +1,5 @@
+import Session from './Session.js'
+
 const ws_url = ((process.env.NODE_ENV || '').trim() === 'development') ? 'ws://localhost:18072': 'wss://havenchat.ibad.one:18072';
 const wsState = {
 	connecting: 0,
@@ -10,9 +12,17 @@ const wsState = {
 class WebSocketWrapper {
 	constructor(){
 		this.socket = null;
-		this.msgHandler = {
+		this.chat = null;
+		this.msgHandlers = {
 			
 		}
+	}
+	
+	uid(){ return Session.getSession().id; }
+	
+	loadChatSocket(chatSocket){
+		this.chat = chatSocket;
+		this.msgHandlers.chat = this.chat.msgHandler;
 	}
 	
 	connect(){
@@ -28,13 +38,19 @@ class WebSocketWrapper {
 			
 			this.socket = new WebSocket(ws_url);
 			this.socket.addEventListener('open', (e)=>{
-				this.send("log", "Hello server!");
+				// this.send("log", "Hello server!");  // REMOVE ME
 				heartbeat();
 			});
 
 			this.socket.addEventListener('message', (e)=>{
 				let msgObj = JSON.parse(e.data);
-				console.log('Client received: %s', JSON.stringify(msgObj));
+				console.log(msgObj);
+				let msgHandler = self.msgHandlers[msgObj.event];
+				if(msgHandler){
+					msgHandler(self, msgObj.data);
+				}else{
+					console.log('Client received: %s', JSON.stringify(msgObj));
+				}
 			});
 			
 			this.socket.addEventListener('ping',  heartbeat);
@@ -45,15 +61,8 @@ class WebSocketWrapper {
 		}
 	}
 	
-	chatMsgHandler(self, data){
-		switch(data.name){
-			case "request":
-				console.log("RECEIVED CHAT REQUESTS");
-		}
-	}
-	
 	send(event, data){
-		this.socket.send(JSON.stringify({event: event, data: data}));
+		this.socket.send(JSON.stringify({event, data}));
 	}
 	
 	close(){

@@ -65,14 +65,14 @@ class FriendsPane extends React.Component {
 	filterChangeHandler(e){
 		const filter = (e.target && e.target.value) || "";
 		let self = this;
-		this.setState({filter: filter}, ()=>{
+		this.setState({filter}, ()=>{
 			self.getFriends(filter);
 		});
 	}
 	
-	unfriend(id){
+	unfriend(targetId){
 		let self = this;
-		api.post('/user/deleteFriend', {targetId: id}).then((res)=>{
+		api.post('/user/deleteFriend', {targetId}).then((res)=>{
 			if(res.data && res.data.status){
 				// TODO: Success message
 				self.initData();
@@ -84,7 +84,7 @@ class FriendsPane extends React.Component {
 	
 	getFriends(filter=""){
 		let self = this;
-		api.post('/user/getFriends', {filter: filter}).then((res)=>{
+		api.post('/user/getFriends', {filter}).then((res)=>{
 			if(res.data && filter === this.state.filter){
 				for(let i in res.data.friends){
 					res.data.friends[i].unfriendBtn = (
@@ -137,9 +137,9 @@ class SearchUserPane extends React.Component {
 		});
 	}
 	
-	requestFriend(id){
+	requestFriend(targetId){
 		let self = this;
-		api.post('/user/sendFriendRequest', {targetId: id}).then((res)=>{
+		api.post('/user/sendFriendRequest', {targetId}).then((res)=>{
 			if(res.data && res.data.status){
 				// TODO: Success message
 				self.initData();
@@ -149,9 +149,9 @@ class SearchUserPane extends React.Component {
 		});
 	}
 	
-	acceptFriend(id){
+	acceptFriend(targetId){
 		let self = this;
-		api.post('/user/acceptFriendRequest', {targetId: id}).then((res)=>{
+		api.post('/user/acceptFriendRequest', {targetId}).then((res)=>{
 			if(res.data && res.data.status){
 				// TODO: Success message
 				self.initData();
@@ -161,9 +161,9 @@ class SearchUserPane extends React.Component {
 		});
 	}
 	
-	denyFriend(id){
+	denyFriend(targetId){
 		let self = this;
-		api.post('/user/denyFriendRequest', {targetId: id}).then((res)=>{
+		api.post('/user/denyFriendRequest', {targetId}).then((res)=>{
 			if(res.data && res.data.status){
 				// TODO: Success message
 				self.initData();
@@ -175,7 +175,7 @@ class SearchUserPane extends React.Component {
 	
 	getUsers(filter=""){
 		let self = this;
-		api.post('/user/getUsers', {filter: filter}).then((res)=>{
+		api.post('/user/getUsers', {filter}).then((res)=>{
 			if(res.data && filter === this.state.filter){
 				for(let i in res.data.users){
 					res.data.users[i].addBtn = (
