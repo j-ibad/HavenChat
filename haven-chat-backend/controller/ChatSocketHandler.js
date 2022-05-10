@@ -65,13 +65,13 @@ module.exports = class ChatSocket {
 		if(data.sid === 0){
 			// console.log(`${self.user.username} requested to initiate chat`);
 			let pubKey = pki.publicKeyFromPem(data.pubKey);
-			let secretKey64 = forge.util.encode64(forge.random.getBytesSync(32)); //32 bytes for AES-256
+			let secretKey16 = forge.util.createBuffer(forge.random.getBytesSync(32)).toHex(); //32 bytes for AES-256
 			
-			let res = await ChatModel.startChat(secretKey64);
+			let res = await ChatModel.startChat(secretKey16);
 			if(res.status){
 				ChatModel.addParticipant(res.sid, self.user.id, 1);
-				let secretKey64_enc64 = forge.util.encode64(pubKey.encrypt(secretKey64));
-				self.chat.accept(res.sid, self.user, secretKey64_enc64);
+				let secretKey16_enc16 = forge.util.createBuffer(pubKey.encrypt(secretKey16)).toHex();
+				self.chat.accept(res.sid, self.user, secretKey16_enc16.toString());
 				for(let i in data.participants){
 					ChatModel.addParticipant(res.sid, data.participants[i].id);
 					self.chat.request(res.sid, self.user, data.participants[i].id);
@@ -92,9 +92,9 @@ module.exports = class ChatSocket {
 		let res = await ChatModel.getSecret(data.sid, self.user.id);
 		if(res.status){
 			ChatModel.activateParticipant(data.sid, self.user.id);
-			let secretKey64 = res.secret;
-			let secretKey64_enc64 = forge.util.encode64(pubKey.encrypt(secretKey64));
-			self.chat.accept(data.sid, self.user, secretKey64_enc64);
+			let secretKey16 = res.secret;
+			let secretKey16_enc16 = forge.util.createBuffer(pubKey.encrypt(secretKey16)).toHex();
+			self.chat.accept(data.sid, self.user, secretKey16_enc16);
 		}else{
 			self.error("Failed to start chat session");
 		}

@@ -74,7 +74,11 @@ class ChatSocket {
 	deny(){ socket.send(chatEvent, {name: 'deny'}); }
 	
 	send(msg){
-		let cipher = forge.cipher.createCipher('AES-CBC', forge.util.createBuffer(this.secret).getBytes());
+		let secret = forge.util.createBuffer(this.secret).getBytes();
+		console.log(this.secret.length);
+		console.log(secret.toString().length);
+			
+		let cipher = forge.cipher.createCipher('AES-CBC', secret.toString());
 		let iv = forge.random.getBytesSync(32);
 		
 		cipher.start({iv});
@@ -84,7 +88,7 @@ class ChatSocket {
 			name: 'send',
 			sid: this.sid,
 			msg: forge.util.encode64(cipher.output.getBytes()),
-			iv: forge.util.encode64(iv)
+			iv: forge.util.bytesToHex(iv)
 		});
 	}
 	
@@ -114,9 +118,10 @@ class ChatSocket {
 	
 	async handleAccept(self, data){
 		if(data.user.id === self.uid()){
-			let secretKey64_enc = forge.util.decode64(data.secret);
-			let secretKey64 = this.privKey.decrypt(secretKey64_enc);
-			this.secret = forge.util.decode64(secretKey64);
+			let secretKey16_enc = await forge.util.hexToBytes(data.secret);
+			let secretKey16 = await this.privKey.decrypt(secretKey16_enc);
+			this.secret = await forge.util.hexToBytes(secretKey16);
+			console.log(this.secret.length);
 			
 			this.sid = data.sid;
 		}else{
@@ -129,18 +134,21 @@ class ChatSocket {
 	}
 	
 	async handleSend(self, data){
-		let iv = forge.util.decode64(data.iv);
-		let msg_enc = forge.util.decode64(data.msg);
-		
-		let secret = await forge.util.createBuffer(this.secret).getBytes();
-		
-		let decipher = await forge.cipher.createDecipher('AES-CBC', secret);
-		await decipher.start({iv});
-		await decipher.update(forge.util.createBuffer(msg_enc));
-		await decipher.finish();
-		let msg = await decipher.output.toString();
-		
-		this.invokeListener(self, 'send', {msg,  from: data.user});
+		if(this.secret){
+			let iv = await forge.util.hexToBytes(data.iv);
+			let msg_enc = await forge.util.decode64(data.msg);
+			
+			let secret = await forge.util.createBuffer(this.secret).getBytes();
+			console.log(secret.toString().length);
+			
+			let decipher = await forge.cipher.createDecipher('AES-CBC', secret.toString());
+			await decipher.start({iv});
+			await decipher.update(forge.util.createBuffer(msg_enc));
+			await decipher.finish();
+			let msg = await decipher.output.toString();
+			
+			this.invokeListener(self, 'send', {msg,  from: data.user});
+		}
 	}
 	
 	async handleClose(self, data){

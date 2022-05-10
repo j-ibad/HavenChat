@@ -32,13 +32,12 @@ class WebSocketWrapper {
 			function heartbeat() {
 				clearTimeout(self.pingTimeout);
 				self.pingTimeout = setTimeout(() => {
-					self.socket.close();
+					self.connect();
 				}, 121000);
 			}
 			
 			this.socket = new WebSocket(ws_url);
 			this.socket.addEventListener('open', (e)=>{
-				// this.send("log", "Hello server!");  // REMOVE ME
 				heartbeat();
 			});
 
@@ -61,11 +60,13 @@ class WebSocketWrapper {
 	}
 	
 	send(event, data){
+		this.connect();
 		this.socket.send(JSON.stringify({event, data}));
 	}
 	
 	close(){
 		if(this.socket && this.socket.readyState !== wsState.closing && this.socket.readyState !== wsState.closed){
+			clearTimeout(this.pingTimeout);
 			this.socket.close();
 		}
 	}
