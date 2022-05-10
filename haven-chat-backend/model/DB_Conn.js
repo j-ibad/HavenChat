@@ -4,18 +4,28 @@ const Lock = require('../util/Lock.js');
 class DB_Conn {
 	constructor(sync=true){
 		let mysqlConnectionParams = require('../config/db_creds.json');
-		this.conn = mysql.createConnection(mysqlConnectionParams);
+		this.pool = mysql.createPool(mysqlConnectionParams);
 		this.queryLock = new Lock(sync);
 	}
 	
 	query(sql, handler){
 		this.queryLock.wait(true).then(()=>{
-			this.conn.connect(async(e)=>{
-				await this.conn.query(sql, (e, res)=>{
-					handler(e, res);
+			this.pool.getConnection(async(err, conn)=>{
+				if(err){
+					handler(err, {});
 					this.queryLock.unlock();
-					if(this.conn.queue === 0){
-						this.conn.end();
+					return;
+				}
+				await conn.query(sql, (err2, res)=>{
+					if(err2){
+						handler(err2, {});
+						this.queryLock.unlock();
+						return;
+					}
+					handler(err2, res);
+					this.queryLock.unlock();
+					if(conn.queue === 0){
+						conn.end();
 					}
 				});
 			});
