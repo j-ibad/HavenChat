@@ -75,8 +75,6 @@ class ChatSocket {
 	
 	send(msg){
 		let secret = forge.util.createBuffer(this.secret).getBytes();
-		console.log(this.secret.length);
-		console.log(secret.toString().length);
 			
 		let cipher = forge.cipher.createCipher('AES-CBC', secret.toString());
 		let iv = forge.random.getBytesSync(32);
@@ -121,7 +119,6 @@ class ChatSocket {
 			let secretKey16_enc = await forge.util.hexToBytes(data.secret);
 			let secretKey16 = await this.privKey.decrypt(secretKey16_enc);
 			this.secret = await forge.util.hexToBytes(secretKey16);
-			console.log(this.secret.length);
 			
 			this.sid = data.sid;
 		}else{
@@ -138,10 +135,7 @@ class ChatSocket {
 			let iv = await forge.util.hexToBytes(data.iv);
 			let msg_enc = await forge.util.decode64(data.msg);
 			
-			let secret = await forge.util.createBuffer(this.secret).getBytes();
-			console.log(secret.toString().length);
-			
-			let decipher = await forge.cipher.createDecipher('AES-CBC', secret.toString());
+			let decipher = await forge.cipher.createDecipher('AES-CBC', this.secret);
 			await decipher.start({iv});
 			await decipher.update(forge.util.createBuffer(msg_enc));
 			await decipher.finish();
