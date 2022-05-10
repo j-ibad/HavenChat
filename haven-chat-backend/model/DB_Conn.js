@@ -12,21 +12,22 @@ class DB_Conn {
 		this.queryLock.wait(true).then(()=>{
 			this.pool.getConnection(async(err, conn)=>{
 				if(err){
+					console.log(`DB CONNECTION ERROR: ${err}`);
 					handler(err, {});
 					this.queryLock.unlock();
 					return;
 				}
 				await conn.query(sql, (err2, res)=>{
 					if(err2){
+						console.log(`DB QUERY ERROR: ${err2}`);
 						handler(err2, {});
 						this.queryLock.unlock();
+						conn.release();
 						return;
 					}
 					handler(err2, res);
 					this.queryLock.unlock();
-					if(conn.queue === 0){
-						conn.end();
-					}
+					conn.release();
 				});
 			});
 		});

@@ -1,7 +1,8 @@
 import React from 'react';
 
 import {api} from './util/api.js'
-import chatSocket from './util/ChatSocket.js'
+import ChatSocket from './util/ChatSocket.js'
+import Session from './util/Session.js'
 import SessionRequired from './component/SessionRequired.js'
 import List from './component/List.js'
 import {Tab, TabContent} from './component/Tab.js';
@@ -25,7 +26,6 @@ const partipantFields = [
 export default class LiveChatPage extends React.Component {
 	constructor(props){
 		super(props);
-		console.log(this.props.invite);
 		this.state = {
 			active: (this.props.invite && 1) || 0,
 			chatConfig: this.props.invite || {
@@ -97,7 +97,7 @@ class SetupChatPane extends React.Component {
 			if(res.data && filter === this.state.filter){
 				let nFriends = res.data.friends;
 				let participantIds = this.state.participants.map((elem)=>{return elem.id});
-				self.setState({friends: nFriends.filter((elem)=>{ return !participantIds.includes(elem.id)}) || []});
+				self.setState({friends: (nFriends || []).filter((elem)=>{ return !participantIds.includes(elem.id)}) || []});
 			}
 		});
 	}
@@ -134,22 +134,60 @@ class ChatPane extends React.Component {
 	constructor(props){
 		super(props);
 		let chatConfig = this.props.chatConfig;
-		console.log(chatConfig);
 		if(chatConfig.sid === 0){
-			chatSocket.request({participants: chatConfig.participants});
+			ChatSocket.request({participants: chatConfig.participants});
 		}else{
-			chatSocket.accept(chatConfig.sid);
+			ChatSocket.accept(chatConfig.sid);
 		}
+		
+		this.state = {
+			msg: "",
+			msgHistory: []
+		}
+		this.msgInputHandler = this.msgInputHandler.bind(this);
+		this.rcvMsg = this.rcvMsg.bind(this);
+		this.sendMsg = this.sendMsg.bind(this);
+		ChatSocket.setEventListener('send', this, this.rcvMsg);
 	}
 	
 	componentWillUnmount(){
 		console.log('Unmount');
+		ChatSocket.deleteEventListener('send');
+	}
+	
+	
+	msgInputHandler(e){ this.setState({msg: e.target.value}); }
+	sendMsg(){
+		ChatSocket.send(this.state.msg);
+		let msgHistory = this.state.msgHistory.slice();
+		msgHistory.push({msg: this.state.msg, from: Session.getSession()});
+		this.setState({msg: "", msgHistory});
+	}
+	rcvMsg(socket, self, msgObj){
+		let msgHistory = self.state.msgHistory.slice();
+		msgHistory.push(msgObj);
+		self.setState({msgHistory});
 	}
 	
 	render(){
 		return (<div>
-			<h3> Chat </h3>
 			<button onClick={this.props.onBack}>Back</button>
+			<h3> Chat </h3>
+			<input type="text" 
+				value={this.state.msg} 
+				onChange={this.msgInputHandler}/>
+			<button 
+				disabled={this.state.msg.trim().length===0}
+				onClick={this.sendMsg}>
+				Send
+			</button>
+			
+			{this.state.msgHistory.map((entry, i)=>{
+				return (<div key={i}>
+					<p> From: {entry.from.username} </p>
+					<p> {entry.msg} </p>
+				</div>);
+			})}
 		</div>);
 	}
 }

@@ -26,8 +26,10 @@ CREATE TABLE IF NOT EXISTS ChatSession (
 
 CREATE TABLE IF NOT EXISTS ChatParticipants (
 	sid bigint NOT NULL,
-	userId int
+	userId int,
+	active bit DEFAULT (0)
 );
+
 
 DELETE FROM ChatParticipants;
 DELETE FROM ChatSession;

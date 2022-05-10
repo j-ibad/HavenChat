@@ -35,11 +35,16 @@ module.exports = class ChatSocket {
 	
 	deny(){ this.socket.send(chatEvent, {name: 'deny'}); }
 	
-	send(msg){
-		this.socket.send(chatEvent, { 
-			name: 'send',
-			msg
-		});
+	send(sid, msg, iv, sender, recv_uids){
+		for(let recv_uid of recv_uids){
+			this.socket.send(chatEvent, { 
+				name: 'send',
+				sid,
+				iv,
+				msg,
+				user: sender
+			}, recv_uid);
+		}
 	}
 	
 	close(){ this.socket.send(chatEvent, {name: 'close'}); }
@@ -58,13 +63,13 @@ module.exports = class ChatSocket {
 	
 	async handleRequest(self, data){
 		if(data.sid === 0){
-			console.log(`${self.user.username} requested to initiate chat`);
+			// console.log(`${self.user.username} requested to initiate chat`);
 			let pubKey = pki.publicKeyFromPem(data.pubKey);
 			let secretKey64 = forge.util.encode64(forge.random.getBytesSync(32)); //32 bytes for AES-256
 			
 			let res = await ChatModel.startChat(secretKey64);
 			if(res.status){
-				ChatModel.addParticipant(res.sid, self.user.id);
+				ChatModel.addParticipant(res.sid, self.user.id, 1);
 				let secretKey64_enc64 = forge.util.encode64(pubKey.encrypt(secretKey64));
 				self.chat.accept(res.sid, self.user, secretKey64_enc64);
 				for(let i in data.participants){
@@ -75,20 +80,21 @@ module.exports = class ChatSocket {
 				self.error("Failed to start chat session");
 			}
 		}else{
-			console.log(`${self.user.username} requested to join existing chat ${sid}`);
+			// console.log(`${self.user.username} requested to join existing chat ${sid}`);
 			// TODO
 		}
 	}
 	
 	async handleAccept(self, data){
-		console.log(`${self.user.username} joined chat ${data.sid}`);
+		// console.log(`${self.user.username} joined chat ${data.sid}`);
 		let pubKey = pki.publicKeyFromPem(data.pubKey);
 		
 		let res = await ChatModel.getSecret(data.sid, self.user.id);
 		if(res.status){
+			ChatModel.activateParticipant(data.sid, self.user.id);
 			let secretKey64 = res.secret;
 			let secretKey64_enc64 = forge.util.encode64(pubKey.encrypt(secretKey64));
-			self.chat.accept(res.sid, self.user, secretKey64_enc64);
+			self.chat.accept(data.sid, self.user, secretKey64_enc64);
 		}else{
 			self.error("Failed to start chat session");
 		}
@@ -100,6 +106,11 @@ module.exports = class ChatSocket {
 	}
 	
 	async handleSend(self, data){
+		// console.log(`${self.user.username} sent a message to chat ${data.sid}`);
+		let res = await ChatModel.getParticipants(data.sid, self.user.id);
+		if(res.status){
+			self.chat.send(res.sid, data.msg, data.iv, self.user, res.participants);
+		}
 		// TODO
 	}
 	

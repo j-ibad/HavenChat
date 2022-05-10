@@ -19,13 +19,24 @@ class ChatModel {
 		return retVal;
 	}
 	
-	async addParticipant(sid, uid){
+	async addParticipant(sid, uid, active=0){
 		uid = Number(uid);
 		sid = Number(sid);
 		
-		let sqlQuery = `INSERT INTO ChatParticipants(sid, userId) `
-		sqlQuery += `SELECT ${sid}, ${uid} WHERE NOT EXISTS `
+		let sqlQuery = `INSERT INTO ChatParticipants(sid, userId, active) `
+		sqlQuery += `SELECT ${sid}, ${uid}, ${active} WHERE NOT EXISTS `
 		sqlQuery += `(SELECT * FROM ChatParticipants WHERE sid=${sid} AND userId=${uid});`
+		let res = await this.conn.queryAsync(sqlQuery);
+		let retVal = {status: (res.status && res.data.affectedRows > 0)};
+		return retVal;
+	}
+	
+	async activateParticipant(sid, uid){
+		uid = Number(uid);
+		sid = Number(sid);
+		
+		let sqlQuery = `UPDATE ChatParticipants SET active=1 `
+		sqlQuery += `WHERE sid=${sid} AND userId=${uid};`
 		let res = await this.conn.queryAsync(sqlQuery);
 		let retVal = {status: (res.status && res.data.affectedRows > 0)};
 		return retVal;
@@ -43,6 +54,22 @@ class ChatModel {
 		if(res.status && res.data.length > 0){
 			retVal.secret = res.data[0].secret;
 		}
+		return retVal;
+	}
+	
+	async getParticipants(sid, uid){
+		uid = Number(uid);
+		sid = Number(sid);
+		
+		let sqlQuery = `SELECT userId FROM ChatParticipants WHERE `
+		sqlQuery += `active=1 AND sid=${sid} AND userId<>${uid} AND `
+		sqlQuery += `${uid} IN (SELECT userId FROM ChatParticipants WHERE sid=${sid});`
+		
+		let res = await this.conn.queryAsync(sqlQuery);
+		let retVal = {
+			status: res.status,
+			participants: (res.status && res.data.map(elem=>elem.userId)) || []
+		};
 		return retVal;
 	}
 	

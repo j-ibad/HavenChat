@@ -20,7 +20,7 @@ class ChatSocket {
 	setEventListener(event, component, handler){
 		this.eventListeners[event] = {handler, component}
 	}
-	deleteEventListener(event, listener){ delete this.eventListeners[event]; }
+	deleteEventListener(event){ delete this.eventListeners[event]; }
 	invokeListener(self, event, data){
 		let tmpEventListener = this.eventListeners[event];
 		if(tmpEventListener){
@@ -74,9 +74,17 @@ class ChatSocket {
 	deny(){ socket.send(chatEvent, {name: 'deny'}); }
 	
 	send(msg){
+		let cipher = forge.cipher.createCipher('AES-CBC', forge.util.createBuffer(this.secret).getBytes());
+		let iv = forge.random.getBytesSync(32);
+		
+		cipher.start({iv});
+		cipher.update(forge.util.createBuffer(msg));
+		cipher.finish();
 		socket.send(chatEvent, { 
 			name: 'send',
-			msg
+			sid: this.sid,
+			msg: forge.util.encode64(cipher.output.getBytes()),
+			iv: forge.util.encode64(iv)
 		});
 	}
 	
@@ -101,23 +109,18 @@ class ChatSocket {
 	
 	async handleRequest(self, data){
 		console.log(`Received server invitation to chat ${data.sid} from ${data.user.username}`);
-		// TODO: Prompt user
-		// Extract data = {sid, user}
 		this.invokeListener(self, 'request', data);
 	}
 	
 	async handleAccept(self, data){
 		if(data.user.id === self.uid()){
-			console.log('Server accepted chat request');
-			// Server accepted: Store chat config and join chat
 			let secretKey64_enc = forge.util.decode64(data.secret);
-			let secretKey64 = self.chat.privKey.decrypt(secretKey64_enc);
-			self.chat.secret = forge.util.decode64(secretKey64);
-			console.log(secretKey64);
+			let secretKey64 = this.privKey.decrypt(secretKey64_enc);
+			this.secret = forge.util.decode64(secretKey64);
 			
-			self.chat.sid = data.sid;
+			this.sid = data.sid;
 		}else{
-			self.chat.participants.push(data.user);
+			this.participants.push(data.user);
 		}
 	}
 	
@@ -126,7 +129,18 @@ class ChatSocket {
 	}
 	
 	async handleSend(self, data){
-		// TODO
+		let iv = forge.util.decode64(data.iv);
+		let msg_enc = forge.util.decode64(data.msg);
+		
+		let secret = await forge.util.createBuffer(this.secret).getBytes();
+		
+		let decipher = await forge.cipher.createDecipher('AES-CBC', secret);
+		await decipher.start({iv});
+		await decipher.update(forge.util.createBuffer(msg_enc));
+		await decipher.finish();
+		let msg = await decipher.output.toString();
+		
+		this.invokeListener(self, 'send', {msg,  from: data.user});
 	}
 	
 	async handleClose(self, data){

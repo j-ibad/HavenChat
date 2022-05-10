@@ -44,12 +44,11 @@ class WebSocketWrapper {
 
 			this.socket.addEventListener('message', (e)=>{
 				let msgObj = JSON.parse(e.data);
-				console.log(msgObj);
 				let msgHandler = self.msgHandlers[msgObj.event];
 				if(msgHandler){
 					msgHandler(self, msgObj.data);
 				}else{
-					console.log('Client received: %s', JSON.stringify(msgObj));
+					console.log(msgObj);
 				}
 			});
 			
