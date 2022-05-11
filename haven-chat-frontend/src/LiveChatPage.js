@@ -160,34 +160,46 @@ class ChatPane extends React.Component {
 	sendMsg(){
 		ChatSocket.send(this.state.msg);
 		let msgHistory = this.state.msgHistory.slice();
-		msgHistory.push({msg: this.state.msg, from: Session.getSession()});
+		let now = new Date();
+		now = now.toISOString().split('T')[0]
+		msgHistory.push({msg: this.state.msg, from: Session.getSession(), time: now});
 		this.setState({msg: "", msgHistory});
 	}
 	rcvMsg(socket, self, msgObj){
 		let msgHistory = self.state.msgHistory.slice();
-		msgHistory.push(msgObj);
+		let now = new Date();
+		now = now.toISOString().split('T')[0]
+		msgHistory.push(Object.assign(msgObj, { time: now }));
 		self.setState({msgHistory});
 	}
 	
 	render(){
 		return (<div>
 			<button onClick={this.props.onBack}>Back</button>
-			<h3> Chat </h3>
-			<input type="text" 
-				value={this.state.msg} 
-				onChange={this.msgInputHandler}/>
-			<button 
-				disabled={this.state.msg.trim().length===0}
-				onClick={this.sendMsg}>
-				Send
-			</button>
-			
-			{this.state.msgHistory.map((entry, i)=>{
-				return (<div key={i}>
-					<p> From: {entry.from.username} </p>
-					<p> {entry.msg} </p>
-				</div>);
-			})}
+			<div className="MessagesWrapper">
+				<div className="MessagesPaneWrapper">
+					<div className="MessagesPane">
+						{this.state.msgHistory.slice().reverse().map((entry, i)=>{
+							return (<div key={i} className={`Message ${(entry.from.id === Session.getSession().id) ? 'To' : 'From'}`}>
+								<p className="Msg"> {entry.msg} </p>
+								<p className="Time"> {entry.time} -- [<i><b>{entry.from.username}</b></i>]</p>
+							</div>);
+						})}
+					</div>
+				</div>
+				
+				<div className="MessageInput">
+					<input type="text" 
+						value={this.state.msg} 
+						onChange={this.msgInputHandler}
+						placeholder="Aa"/>
+					<button className="Send"
+						disabled={this.state.msg.trim().length===0}
+						onClick={this.sendMsg}>
+						Send
+					</button>
+				</div>
+			</div>
 		</div>);
 	}
 }

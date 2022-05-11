@@ -1,0 +1,52 @@
+.MessagesPane {
+	display: flex;
+    flex-direction: column-reverse;
+	gap: 1em;
+	overflow: auto;
+	height: 100%;
+	-ms-overflow-style: none;  /* IE and Edge */
+	scrollbar-width: none;  /* Firefox */
+}
+.MessagesPane::-webkit-scrollbar {
+	display: none;
+}
+
+.MessagesPane .Message {
+	border-radius: 1em;
+	padding: 0.4em 1em;
+	background: var(--skyblue-x-faint);
+	display: inline-block;
+	max-width: 70%;
+	min-width: 40%;
+}
+
+.MessagesPane .Message.To {
+	align-self: end;
+}
+
+.MessagesPane .Message .Time{
+	font-size: 0.8em;
+	float: right;
+	display: inline-block;
+}
+
+.MessagesPaneWrapper {
+	height: calc(95vh - 8em);
+	overflow-y: auto;
+}
+
+.MessageInput {
+	height: 2em;
+	padding-top: 0.5em;
+}
+
+.MessageInput input{
+	padding: 0.5em;
+	width: calc(100% - 7em);
+	margin-right: 0.5em;
+	border-radius: 0.5em;
+	border: none;
+	border-bottom: 2px solid var(--skyblue-faint);
+	background: none;
+	color: var(--main-fg-primary);
+}
