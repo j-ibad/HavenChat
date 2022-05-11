@@ -147,30 +147,38 @@ class ChatPane extends React.Component {
 		this.msgInputHandler = this.msgInputHandler.bind(this);
 		this.rcvMsg = this.rcvMsg.bind(this);
 		this.sendMsg = this.sendMsg.bind(this);
+		this.participantJoined = this.participantJoined.bind(this);
 		ChatSocket.setEventListener('send', this, this.rcvMsg);
+		ChatSocket.setEventListener('accept', this, this.participantJoined);
 	}
 	
 	componentWillUnmount(){
 		console.log('Unmount');
 		ChatSocket.deleteEventListener('send');
+		ChatSocket.deleteEventListener('accept');
 	}
 	
-	
 	msgInputHandler(e){ this.setState({msg: e.target.value}); }
-	sendMsg(){
-		ChatSocket.send(this.state.msg);
+	
+	pushMessage(msg, from=null){
 		let msgHistory = this.state.msgHistory.slice();
 		let now = new Date();
 		now = now.toISOString().split('T')[0]
-		msgHistory.push({msg: this.state.msg, from: Session.getSession(), time: now});
+		msgHistory.push({msg, from, time: now});
 		this.setState({msg: "", msgHistory});
 	}
+	
+	sendMsg(){
+		ChatSocket.send(this.state.msg);
+		this.pushMessage(this.state.msg, Session.getSession());
+	}
+	
 	rcvMsg(socket, self, msgObj){
-		let msgHistory = self.state.msgHistory.slice();
-		let now = new Date();
-		now = now.toISOString().split('T')[0]
-		msgHistory.push(Object.assign(msgObj, { time: now }));
-		self.setState({msgHistory});
+		this.pushMessage(msgObj.msg, msgObj.from);
+	}
+	
+	participantJoined(socket, self, user){
+		this.pushMessage(`${user.username} has joined the chat`);
 	}
 	
 	render(){
@@ -180,9 +188,16 @@ class ChatPane extends React.Component {
 				<div className="MessagesPaneWrapper">
 					<div className="MessagesPane">
 						{this.state.msgHistory.slice().reverse().map((entry, i)=>{
-							return (<div key={i} className={`Message ${(entry.from.id === Session.getSession().id) ? 'To' : 'From'}`}>
+							let msgType = (entry.from === null) 
+								? 'System'
+								: ((entry.from.id === Session.getSession().id) ? 'To' : 'From');
+							
+							return (<div key={i} className={`Message ${msgType}`}>
 								<p className="Msg"> {entry.msg} </p>
-								<p className="Time"> {entry.time} -- [<i><b>{entry.from.username}</b></i>]</p>
+								<p className="Time"> 
+									{entry.time} 
+									{entry.from && <i>-- [<b>{entry.from.username}</b>]</i>}
+								</p>
 							</div>);
 						})}
 					</div>

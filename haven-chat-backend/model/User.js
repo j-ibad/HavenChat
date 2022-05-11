@@ -15,7 +15,7 @@ class UserModel {
 		}else{
 			sqlQueryClause = '1=1 ';
 		}
-		return sqlQueryClause
+		return sqlQueryClause;
 	}
 	
 	async getUsers(uid, args){

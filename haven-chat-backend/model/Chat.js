@@ -42,12 +42,19 @@ class ChatModel {
 		return retVal;
 	}
 	
+	isParticipantClause(uid, sid, onlyActive=0){
+		let sqlQueryClause =  `${uid} IN (SELECT userId FROM ChatParticipants WHERE `
+		if(onlyActive==1){ sqlQueryClause += `active=1 AND `; }
+		sqlQueryClause +=	`sid=${sid}) `;
+		return sqlQueryClause;
+	}
+	
 	async getSecret(sid, uid){
 		uid = Number(uid);
 		sid = Number(sid);
 		
-		let sqlQuery = `SELECT secret FROM ChatSession WHERE id=${sid} AND `
-		sqlQuery += `${uid} IN (SELECT userId FROM ChatParticipants WHERE sid=${sid});`
+		let sqlQuery = `SELECT secret FROM ChatSession WHERE id=${sid} `
+		sqlQuery += `AND ${this.isParticipantClause(uid, sid)};`
 		
 		let res = await this.conn.queryAsync(sqlQuery);
 		let retVal = {status: res.status};
@@ -62,36 +69,14 @@ class ChatModel {
 		sid = Number(sid);
 		
 		let sqlQuery = `SELECT userId FROM ChatParticipants WHERE `
-		sqlQuery += `active=1 AND sid=${sid} AND userId<>${uid} AND `
-		sqlQuery += `${uid} IN (SELECT userId FROM ChatParticipants WHERE sid=${sid});`
+		sqlQuery += `active=1 AND sid=${sid} AND userId<>${uid} `
+		sqlQuery += `AND ${this.isParticipantClause(uid, sid)};`
 		
 		let res = await this.conn.queryAsync(sqlQuery);
 		let retVal = {
 			status: res.status,
 			participants: (res.status && res.data.map(elem=>elem.userId)) || []
 		};
-		return retVal;
-	}
-	
-	async getUsers(uid, args){
-		Sanitizer.sqlSanitize(args);
-		
-		let sqlQuery = `SELECT id, username, email, firstName, lastName, `
-		sqlQuery += `CASE WHEN connectedDate > disconnectedDate THEN 1 ELSE 0 END AS active `
-		sqlQuery += `FROM User WHERE ${this.userFilterClause(args.filter)} `
-		sqlQuery += `AND id NOT IN (SELECT ${uid} UNION `;
-		sqlQuery += `SELECT userId FROM Friend WHERE friendId=${uid} AND block=0 UNION `;
-		sqlQuery += `SELECT friendId FROM Friend WHERE userId=${uid} AND block=0) `
-		sqlQuery += `ORDER BY username LIMIT 10;`;
-		
-		let retVal = {status: false};
-		let res = await this.conn.queryAsync(sqlQuery);
-		if(!res.status){
-			retVal.msg = 'An error has occured';
-		}else{
-			retVal.status = res.status;
-			retVal.users = res.data;
-		}
 		return retVal;
 	}
 	

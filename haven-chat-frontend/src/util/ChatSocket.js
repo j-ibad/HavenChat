@@ -12,7 +12,6 @@ class ChatSocket {
 		this.privKey = null;
 		this.pubKey = null;
 		this.secret = null;
-		this.participants = [];
 		this.messages = [];
 		this.eventListeners = {};
 	}
@@ -39,7 +38,6 @@ class ChatSocket {
 				rsa.generateKeyPair({bits: 2048, workers: 2}, (err, keyPair)=>{
 					this.privKey = keyPair.privateKey;
 					this.pubKey = keyPair.publicKey;
-					this.participants = [];  // Start empty. Add as they accept.
 					
 					socket.send(chatEvent, { 
 						name: 'request',
@@ -60,7 +58,6 @@ class ChatSocket {
 			rsa.generateKeyPair({bits: 2048, workers: 2}, (err, keyPair)=>{
 				this.privKey = keyPair.privateKey;
 				this.pubKey = keyPair.publicKey;
-				this.participants = [];  // Start empty. Add as they accept.
 				
 				socket.send(chatEvent, { 
 					name: 'accept',
@@ -119,10 +116,9 @@ class ChatSocket {
 			let secretKey16_enc = await forge.util.hexToBytes(data.secret);
 			let secretKey16 = await this.privKey.decrypt(secretKey16_enc);
 			this.secret = await forge.util.hexToBytes(secretKey16);
-			
 			this.sid = data.sid;
 		}else{
-			this.participants.push(data.user);
+			this.invokeListener(self, 'accept', data.user);
 		}
 	}
 	
