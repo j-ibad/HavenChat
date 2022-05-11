@@ -4,6 +4,7 @@ import {BrowserRouter as Router, Routes as Switch, Route, Link, Navigate} from "
 import {api} from './util/api.js'
 import Session from './util/Session.js'
 import Socket from './util/WebSocket.js'
+import ChatSocket from './util/ChatSocket.js'
 
 import './css/App_Nav.css';
 import ChatNotifications from "./component/ChatNotifications.js"
@@ -26,6 +27,7 @@ export default class App extends React.Component {
 		
 		this.refreshCookie = this.refreshCookie.bind(this);
 		this.logout = this.logout.bind(this);
+		this.onBeforeUnload = this.onBeforeUnload.bind(this);
 	}
 
 	componentDidMount(){
@@ -45,6 +47,7 @@ export default class App extends React.Component {
 		}).catch().then(()=>{
 			this.setState({loggingOut: false});
 			child.setState({loggedOut: true});
+			ChatSocket.close();
 			Socket.close();
 		});
 	}
@@ -52,9 +55,13 @@ export default class App extends React.Component {
 	acceptChat(invite){
 		this.setState({invite, inviteKey: invite.sid});
 	}
+	
+	onBeforeUnload(){
+		ChatSocket.close();
+	}
   
 	render(){
-		return ( <Router> <div>
+		return ( <Router> <div >
 			<nav id="HC-Nav"> <ul>
 				{!this.state.session && <li> <Link to="/about">About</Link> </li>}
 				

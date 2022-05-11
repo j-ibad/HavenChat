@@ -12,7 +12,6 @@ class ChatSocket {
 		this.privKey = null;
 		this.pubKey = null;
 		this.secret = null;
-		this.messages = [];
 		this.eventListeners = {};
 	}
 	
@@ -52,6 +51,8 @@ class ChatSocket {
 		}
 	}
 	
+	deny(sid){ socket.send(chatEvent, {name: 'close', sid, active: 0}); }
+	
 	accept(sid){
 		if(!this.active){
 			this.active = true;
@@ -67,8 +68,6 @@ class ChatSocket {
 			});
 		}
 	}
-	
-	deny(){ socket.send(chatEvent, {name: 'deny'}); }
 	
 	send(msg){
 		let secret = forge.util.createBuffer(this.secret).getBytes();
@@ -87,9 +86,13 @@ class ChatSocket {
 		});
 	}
 	
-	close(){ 
-		this.active = false;
-		socket.send(chatEvent, {name: 'close'});
+	close(){
+		if(this.active){
+			this.active = false;
+			socket.send(chatEvent, {name: 'close', sid: this.sid, active: 1});
+			this.sid = 0;
+			this.secret = '';
+		}
 	}
 	
 	
@@ -98,7 +101,6 @@ class ChatSocket {
 		switch(data.name){
 			case "request": self.chat.handleRequest(self, data); break;
 			case "accept": self.chat.handleAccept(self, data); break;
-			case "deny": self.chat.handleDeny(self, data); break;
 			case "send": self.chat.handleSend(self, data); break;
 			case "close": self.chat.handleClose(self, data); break;
 			default: break;
@@ -122,10 +124,6 @@ class ChatSocket {
 		}
 	}
 	
-	async handleDeny(self, data){
-		// TODO
-	}
-	
 	async handleSend(self, data){
 		if(this.secret){
 			let iv = await forge.util.hexToBytes(data.iv);
@@ -142,10 +140,9 @@ class ChatSocket {
 	}
 	
 	async handleClose(self, data){
-		// TODO
+		this.invokeListener(self, 'close', {active: data.active,  user: data.user});
 	}
 }
-
 
 const ChatSocketInstance = new ChatSocket();
 socket.loadChatSocket(ChatSocketInstance);

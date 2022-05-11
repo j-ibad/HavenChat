@@ -28,7 +28,6 @@ class WebSocketConnection {
 		// Pass messages to proper message handler
 		self.client.on('message', (data)=>{
 			let msgObj = JSON.parse(data);
-			console.log(msgObj.event);
 			let msgHandler = self.msgHandlers[msgObj.event];
 			if(msgHandler){
 				msgHandler(self, msgObj.data);

@@ -148,14 +148,14 @@ class ChatPane extends React.Component {
 		this.rcvMsg = this.rcvMsg.bind(this);
 		this.sendMsg = this.sendMsg.bind(this);
 		this.participantJoined = this.participantJoined.bind(this);
+		this.participantLeft = this.participantLeft.bind(this);
 		ChatSocket.setEventListener('send', this, this.rcvMsg);
 		ChatSocket.setEventListener('accept', this, this.participantJoined);
+		ChatSocket.setEventListener('close', this, this.participantLeft);
 	}
 	
 	componentWillUnmount(){
-		console.log('Unmount');
-		ChatSocket.deleteEventListener('send');
-		ChatSocket.deleteEventListener('accept');
+		this.close();
 	}
 	
 	msgInputHandler(e){ this.setState({msg: e.target.value}); }
@@ -181,9 +181,24 @@ class ChatPane extends React.Component {
 		this.pushMessage(`${user.username} has joined the chat`);
 	}
 	
+	participantLeft(socket, self, data){
+		if(data.active === 0){ 
+			this.pushMessage(`${data.user.username} has rejected your chat request`);
+		}else{
+			this.pushMessage(`${data.user.username} has left the chat`);
+		}
+	}
+	
+	close(){
+		ChatSocket.close();
+		ChatSocket.deleteEventListener('send');
+		ChatSocket.deleteEventListener('accept');
+		ChatSocket.deleteEventListener('close');
+	}
+	
 	render(){
 		return (<div>
-			<button onClick={this.props.onBack}>Back</button>
+			<button onClick={()=>{this.props.onBack(); this.close();}}>Back</button>
 			<div className="MessagesWrapper">
 				<div className="MessagesPaneWrapper">
 					<div className="MessagesPane">

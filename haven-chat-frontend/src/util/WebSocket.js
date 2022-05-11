@@ -61,11 +61,13 @@ class WebSocketWrapper {
 	
 	send(event, data){
 		this.connect();
-		this.socket.send(JSON.stringify({event, data}));
+		if(this.socket && this.socket.readyState === wsState.open){
+			this.socket.send(JSON.stringify({event, data}));
+		}
 	}
 	
 	close(){
-		if(this.socket && this.socket.readyState !== wsState.closing && this.socket.readyState !== wsState.closed){
+		if(this.socket && this.socket.readyState === wsState.open){
 			clearTimeout(this.pingTimeout);
 			this.socket.close();
 		}

@@ -32,12 +32,11 @@ export default class ChatNotifications extends React.Component {
 	}
 	
 	deny(i){
-		console.log(`Deny invitation from ${this.state.invitations[i].user.username}`);
 		let invitations = this.state.invitations.slice();
-		let deniedInvitation = invitations.splice(i,1);
+		let deniedInvitation = invitations.splice(i,1)[0];
 		this.setState({invitations});
 		
-		console.log('TODO: PROPERLY DENY INVITATION');
+		ChatSocket.deny(deniedInvitation.sid);
 	}
 	
 	render(){
@@ -47,8 +46,7 @@ export default class ChatNotifications extends React.Component {
 				key={this.state.invitations.length} 
 				onAccept={(i)=>{this.accept(i);}}
 				onDeny={(i)=>{this.deny(i);}} 
-				redirectToChat={this.state.redirectToChat}
-				key={this.state.redirectToChat}/>
+				redirectToChat={this.state.redirectToChat} />
 				
 			{this.state.redirectToChat && <RedirectToLiveChat />}
 		</div> );

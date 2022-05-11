@@ -80,14 +80,22 @@ class ChatModel {
 		return retVal;
 	}
 	
-	async setInactive(uid){
-		let sqlQuery = `UPDATE User SET disconnectedDate=CASE `
-		sqlQuery += `WHEN CURRENT_TIMESTAMP <= connectedDate `
-		sqlQuery += `THEN TIMESTAMPADD(SECOND, 1, connectedDate) `
-		sqlQuery += `ELSE CURRENT_TIMESTAMP END `
-		sqlQuery += `WHERE id=${uid};`;
+	async deleteParticipant(sid, uid){
+		uid = Number(uid);
+		sid = Number(sid);
+		
+		let sqlQuery = `DELETE FROM ChatParticipants WHERE sid=${sid} AND userId=${uid};`
 		let res = await this.conn.queryAsync(sqlQuery);
 		let retVal = {status: (res.status && res.data.affectedRows > 0)};
+		if(res.status){
+			sqlQuery = `DELETE FROM ChatSession WHERE id=${sid} AND NOT EXISTS `
+			sqlQuery += `(SELECT * FROM ChatParticipants WHERE sid=${sid});`
+			this.conn.queryAsync(sqlQuery).then((res2)=>{
+				if(res2.data.affectedRows>0){
+					console.log(`ChatSession ${sid} deleted`);
+				}
+			});
+		}
 		return retVal;
 	}
 }

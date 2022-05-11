@@ -40,8 +40,6 @@ module.exports = class ChatSocket {
 		}
 	}
 	
-	deny(){ this.socket.send(chatEvent, {name: 'deny'}); }
-	
 	send(sid, msg, iv, sender, recv_uids){
 		for(let recv_uid of recv_uids){
 			this.socket.send(chatEvent, { 
@@ -54,7 +52,16 @@ module.exports = class ChatSocket {
 		}
 	}
 	
-	close(){ this.socket.send(chatEvent, {name: 'close'}); }
+	close(sid, user, args){
+		for(let uid of args.participants){
+			this.socket.send(chatEvent, { 
+				name: 'close',
+				user,
+				sid,
+				active: args.active
+			}, uid);
+		}
+	}
 	
 	
 	/* [===== Message handlers (Receiving) =====] */
@@ -62,7 +69,6 @@ module.exports = class ChatSocket {
 		switch(data.name){
 			case "request": self.chat.handleRequest(self, data); break;
 			case "accept": self.chat.handleAccept(self, data); break;
-			case "deny": self.chat.handleDeny(self, data); break;
 			case "send": self.chat.handleSend(self, data); break;
 			case "close": self.chat.handleClose(self, data); break;
 		}
@@ -109,22 +115,19 @@ module.exports = class ChatSocket {
 		}
 	}
 	
-	async handleDeny(self, data){
-		// TODO
-		// Remove participant from chat in ChatModel
-	}
-	
 	async handleSend(self, data){
-		// console.log(`${self.user.username} sent a message to chat ${data.sid}`);
 		let res = await ChatModel.getParticipants(data.sid, self.user.id);
 		if(res.status){
 			self.chat.send(res.sid, data.msg, data.iv, self.user, res.participants);
 		}
-		// TODO
 	}
 	
 	async handleClose(self, data){
-		// TODO
+		let res = await ChatModel.getParticipants(data.sid, self.user.id);
+		if(res.status){
+			self.chat.close(data.sid, self.user, {participants: res.participants, active: data.active});
+		}
+		ChatModel.deleteParticipant(data.sid, self.user.id);
 	}
 	
 }
