@@ -64,10 +64,13 @@ class SetupChatPane extends React.Component {
 			participants: [],
 			friends: [],
 			filter: "",
-			keyP: 0
-		}
+			keyP: 0,
+			value: ''
+		};
+
 		this.filterChangeHandler = this.filterChangeHandler.bind(this);
 		this.startChat = this.startChat.bind(this);
+		this.handleChange = this.handleChange.bind(this);
 	}
 	
 	componentDidMount(){ this.initData(); }
@@ -107,12 +110,26 @@ class SetupChatPane extends React.Component {
 			participants: this.state.participants
 		});
 	}
-	
+
+	handleChange(event){
+		this.setState({value: event.target.value});
+	}
 	render(){
 		return (<div>
 			<button onClick={this.startChat} disabled={(this.state.participants.length===0)}>
 				Start Chat
 			</button>
+
+
+			<form onSubmit={this.handleSubmit}>
+				<label>
+				Pick Your Type of Digital Signature:  
+				<select value={this.state.value} onChange={this.handleChange}>
+					<option value = "0"> RSA </option>
+					<option value = "1"> DSA </option>
+				</select>
+				</label>
+			</form>
 		
 			{(this.state.participants.length > 0)
 				? <List title="Participants" data={this.state.participants} fields={partipantFields} key={this.state.keyP}/>

@@ -17,6 +17,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "express": "^4.18.1",
+    "haven-chat-backend": "file:",
     "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1",
     "node-forge": "^1.3.1",
