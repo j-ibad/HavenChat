@@ -7,7 +7,7 @@
     "init": "npm install -y && nodejs model/init.js",
     "serve": "nodejs index.js",
     "test": "npm install && npm run serve",
-    "dev": "npm install && NODE_ENV=development npm run serve",
+    "dev": "npm install && env NODE_ENV=development npm run serve",
     "prod": "npm install && npm run serve"
   },
   "author": "Josh Ibad & Winnie Pan",

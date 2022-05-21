@@ -11,7 +11,7 @@
     "dev-frontend": "npm --prefix ./haven-chat-frontend run dev",
     "dev-backend": "npm --prefix ./haven-chat-backend run dev",
     "dev-backend-async": "npm run dev-backend&",
-    "dev": "NODE_ENV=development npm run dev-backend-async && NODE_ENV=development npm run dev-frontend",
+    "dev": "env NODE_ENV=development npm run dev-backend-async && env NODE_ENV=development npm run dev-frontend",
     "prod-clean": "rm -rf ./haven-chat-frontend/build && rm -rf ./haven-chat-backend/dist",
     "prod-frontend": "npm --prefix ./haven-chat-frontend run prod",
     "prod-moveBuild": "mv ./haven-chat-frontend/build ./haven-chat-backend/dist",
