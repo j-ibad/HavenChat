@@ -4,8 +4,8 @@
   "description": "HavenChat -- A Secure Live Chatting Service",
   "main": "index.js",
   "scripts": {
-    "init": "npm install -y && nodejs model/init.js",
-    "serve": "nodejs index.js",
+    "init": "npm install -y && node model/init.js",
+    "serve": "node index.js",
     "test": "npm install && npm run serve",
     "dev": "npm install && env NODE_ENV=development npm run serve",
     "prod": "npm install && npm run serve"
