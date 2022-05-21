@@ -2,7 +2,7 @@ const {isStr} = require('./Helpers.js');
 
 class Sanitize {
 	constructor(){
-		this.sqlBlacklist = /['";%_\0\b\n\r\t\Z\\]/g;
+		this.sqlBlacklist = /['";%_\0\b\t\\]/g;
 	}
 	
 	sqlSanitizeString(inStr){

@@ -13,6 +13,8 @@ class ChatSocket {
 		this.pubKey = null;
 		this.secret = null;
 		this.eventListeners = {};
+		this.signMethod = 0;
+		this.participants = [];
 	}
 	
 	setEventListener(event, component, handler){
@@ -34,6 +36,10 @@ class ChatSocket {
 			console.log('Starting chat session');
 			
 			if('participants' in args){  // Initiate chat
+				this.signMethod = args.signMethod || 0;
+				this.participants = [];
+				
+				// Generate pubKey pair, send request to server
 				rsa.generateKeyPair({bits: 2048, workers: 2}, (err, keyPair)=>{
 					this.privKey = keyPair.privateKey;
 					this.pubKey = keyPair.publicKey;
@@ -42,6 +48,7 @@ class ChatSocket {
 						name: 'request',
 						sid: 0,
 						pubKey: pki.publicKeyToPem(this.pubKey),
+						signMethod: this.signMethod,
 						participants: args.participants
 					});
 				});
@@ -70,19 +77,30 @@ class ChatSocket {
 	}
 	
 	send(msg){
+		// ENCRYPT MESSAGE
+		//	Set up cipher
 		let secret = forge.util.createBuffer(this.secret).getBytes();
-			
 		let cipher = forge.cipher.createCipher('AES-CBC', secret.toString());
 		let iv = forge.random.getBytesSync(32);
-		
+		//	Encrypt message
 		cipher.start({iv});
 		cipher.update(forge.util.createBuffer(msg));
 		cipher.finish();
+		
+		// SIGN MESSAGE
+		let sign = '';
+		let md = forge.md.sha1.create();
+		md.update(msg, 'utf8');
+		if(this.signMethod === 0){ //RSA
+			sign = this.privKey.sign(md);
+		}
+		
 		socket.send(chatEvent, { 
 			name: 'send',
 			sid: this.sid,
 			msg: forge.util.encode64(cipher.output.getBytes()),
-			iv: forge.util.bytesToHex(iv)
+			iv: forge.util.bytesToHex(iv),
+			sign: forge.util.encode64(sign)
 		});
 	}
 	
@@ -119,7 +137,15 @@ class ChatSocket {
 			let secretKey16 = await this.privKey.decrypt(secretKey16_enc);
 			this.secret = await forge.util.hexToBytes(secretKey16);
 			this.sid = data.sid;
+			this.participants = data.participants || [];
+			this.participants.forEach((e)=>{
+				e.id = e.userId;
+				e.pubKey = pki.publicKeyFromPem(e.pubKey);
+			});
+			this.signMethod = data.signMethod || this.signMethod;
 		}else{
+			data.user.pubKey = pki.publicKeyFromPem(data.pubKey);
+			this.participants.push(data.user);
 			this.invokeListener(self, 'accept', data.user);
 		}
 	}
@@ -135,7 +161,17 @@ class ChatSocket {
 			await decipher.finish();
 			let msg = await decipher.output.toString();
 			
-			this.invokeListener(self, 'send', {msg,  from: data.user});
+			// Verify signature
+			let signature = forge.util.decode64(data.sign);
+			let md = forge.md.sha1.create();
+			md.update(msg, 'utf8');
+			let verified = false;
+			let sender = await this.participants.find((e)=>{return e.id == data.user.id});
+			if(this.signMethod === 0){
+				verified = await sender.pubKey.verify(md.digest().bytes(), signature);
+			}
+			
+			this.invokeListener(self, 'send', {msg,  from: data.user, verified: verified});
 		}
 	}
 	

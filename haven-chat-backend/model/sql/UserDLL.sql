@@ -21,13 +21,15 @@ CREATE TABLE IF NOT EXISTS Friend (
 CREATE TABLE IF NOT EXISTS ChatSession (
 	id bigint NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	secret varchar(256) NOT NULL,
-	createdDate timestamp DEFAULT CURRENT_TIMESTAMP
+	createdDate timestamp DEFAULT CURRENT_TIMESTAMP,
+	signMethod tinyint NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS ChatParticipants (
 	sid bigint NOT NULL,
 	userId int,
-	active bit DEFAULT (0)
+	active bit DEFAULT (0),
+	pubKey varchar(512)
 );
 
 

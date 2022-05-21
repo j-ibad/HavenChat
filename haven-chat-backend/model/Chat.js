@@ -7,10 +7,11 @@ class ChatModel {
 		
 	}
 	
-	async startChat(secret){
+	async startChat(secret, signMethod){
 		secret = Sanitizer.sqlSanitizeString(secret);
+		signMethod = Number(signMethod);
 		
-		let sqlQuery = `INSERT INTO ChatSession(secret) SELECT '${secret}';`
+		let sqlQuery = `INSERT INTO ChatSession(secret, signMethod) SELECT '${secret}', ${signMethod};`
 		let res = await this.conn.queryAsync(sqlQuery);
 		let retVal = {
 			status: (res.status && res.data.insertId > 0),
@@ -19,23 +20,25 @@ class ChatModel {
 		return retVal;
 	}
 	
-	async addParticipant(sid, uid, active=0){
+	async addParticipant(sid, uid, pubKey='', active=0){
+		pubKey = Sanitizer.sqlSanitizeString(pubKey);
 		uid = Number(uid);
 		sid = Number(sid);
 		
-		let sqlQuery = `INSERT INTO ChatParticipants(sid, userId, active) `
-		sqlQuery += `SELECT ${sid}, ${uid}, ${active} WHERE NOT EXISTS `
+		let sqlQuery = `INSERT INTO ChatParticipants(sid, userId, pubKey, active) `
+		sqlQuery += `SELECT ${sid}, ${uid}, '${pubKey}', ${active} WHERE NOT EXISTS `
 		sqlQuery += `(SELECT * FROM ChatParticipants WHERE sid=${sid} AND userId=${uid});`
 		let res = await this.conn.queryAsync(sqlQuery);
 		let retVal = {status: (res.status && res.data.affectedRows > 0)};
 		return retVal;
 	}
 	
-	async activateParticipant(sid, uid){
+	async activateParticipant(sid, uid, pubKey){
+		pubKey = Sanitizer.sqlSanitizeString(pubKey);
 		uid = Number(uid);
 		sid = Number(sid);
 		
-		let sqlQuery = `UPDATE ChatParticipants SET active=1 `
+		let sqlQuery = `UPDATE ChatParticipants SET active=1, pubKey='${pubKey}'`
 		sqlQuery += `WHERE sid=${sid} AND userId=${uid};`
 		let res = await this.conn.queryAsync(sqlQuery);
 		let retVal = {status: (res.status && res.data.affectedRows > 0)};
@@ -53,13 +56,14 @@ class ChatModel {
 		uid = Number(uid);
 		sid = Number(sid);
 		
-		let sqlQuery = `SELECT secret FROM ChatSession WHERE id=${sid} `
+		let sqlQuery = `SELECT secret, signMethod FROM ChatSession WHERE id=${sid} `
 		sqlQuery += `AND ${this.isParticipantClause(uid, sid)};`
 		
 		let res = await this.conn.queryAsync(sqlQuery);
 		let retVal = {status: res.status};
 		if(res.status && res.data.length > 0){
 			retVal.secret = res.data[0].secret;
+			retVal.signMethod = res.data[0].signMethod
 		}
 		return retVal;
 	}
@@ -68,15 +72,21 @@ class ChatModel {
 		uid = Number(uid);
 		sid = Number(sid);
 		
-		let sqlQuery = `SELECT userId FROM ChatParticipants WHERE `
+		let sqlQuery = `SELECT userId, pubKey FROM ChatParticipants WHERE `
 		sqlQuery += `active=1 AND sid=${sid} AND userId<>${uid} `
 		sqlQuery += `AND ${this.isParticipantClause(uid, sid)};`
 		
 		let res = await this.conn.queryAsync(sqlQuery);
 		let retVal = {
 			status: res.status,
-			participants: (res.status && res.data.map(elem=>elem.userId)) || []
+			participants: (res.status && res.data) || []
 		};
+		retVal.participants.forEach((e)=>{
+			console.log('PubKey: ');
+			console.log(e.pubKey);
+			e.pubKey = e.pubKey.replace('\\r', '\r').replace('\\n', '\n');
+			console.log(e.pubKey);
+		});
 		return retVal;
 	}
 	
