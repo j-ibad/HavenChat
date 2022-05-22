@@ -1,7 +1,3 @@
-# HavenChat
-Secure live chatting service
-
-
 # CPSC 452 Final Project - Secure Chat
 # HavenChat
 
