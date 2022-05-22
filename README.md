@@ -11,7 +11,7 @@ CWID: 88880036 & 888997434
 
 ## Description
 
-The title of the Final Project is “HavenCaht”, an secure live chatting service
+The title of the Final Project is “HavenChat”, an secure live chatting service
 <br>
 
 This Project was Generated with REACT! 
