@@ -107,7 +107,8 @@ class SetupChatPane extends React.Component {
 	
 	startChat(){
 		this.props.onStartChat({
-			participants: this.state.participants
+			participants: this.state.participants,
+			signMethod: this.state.value
 		});
 	}
 
@@ -177,11 +178,11 @@ class ChatPane extends React.Component {
 	
 	msgInputHandler(e){ this.setState({msg: e.target.value}); }
 	
-	pushMessage(msg, from=null){
+	pushMessage(msg, from=null, verified=true){
 		let msgHistory = this.state.msgHistory.slice();
 		let now = new Date();
 		now = now.toISOString().split('T')[0]
-		msgHistory.push({msg, from, time: now});
+		msgHistory.push({msg, from, time: now, verified: verified});
 		this.setState({msg: "", msgHistory});
 	}
 	
@@ -191,7 +192,7 @@ class ChatPane extends React.Component {
 	}
 	
 	rcvMsg(socket, self, msgObj){
-		this.pushMessage(msgObj.msg, msgObj.from);
+		this.pushMessage(msgObj.msg, msgObj.from, msgObj.verified); 
 	}
 	
 	participantJoined(socket, self, user){
@@ -226,7 +227,8 @@ class ChatPane extends React.Component {
 							
 							return (<div key={i} className={`Message ${msgType}`}>
 								<p className="Msg"> {entry.msg} </p>
-								<p className="Time"> 
+								{entry.verified && "Verified :)" || "NOT VERIFIED :("}
+								<p className="Time">
 									{entry.time} 
 									{entry.from && <i>-- [<b>{entry.from.username}</b>]</i>}
 								</p>
