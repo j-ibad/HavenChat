@@ -30,7 +30,8 @@ export default class LiveChatPage extends React.Component {
 			active: (this.props.invite && 1) || 0,
 			chatConfig: this.props.invite || {
 				participants: [],
-				sid: 0
+				sid: 0,
+				signMethod: 0
 			}
 		}
 	}
@@ -155,6 +156,8 @@ class ChatPane extends React.Component {
 		if(chatConfig.sid === 0){
 			ChatSocket.request({participants: chatConfig.participants});
 		}else{
+			console.log(chatConfig);
+			ChatSocket.signMethod = chatConfig.signMethod || 0;
 			ChatSocket.accept(chatConfig.sid);
 		}
 		
@@ -227,7 +230,7 @@ class ChatPane extends React.Component {
 							
 							return (<div key={i} className={`Message ${msgType}`}>
 								<p className="Msg"> {entry.msg} </p>
-								{entry.verified && "Verified :)" || "NOT VERIFIED :("}
+								{(entry.verified && "Verified :)") || "NOT VERIFIED :("}
 								<p className="Time">
 									{entry.time} 
 									{entry.from && <i>-- [<b>{entry.from.username}</b>]</i>}

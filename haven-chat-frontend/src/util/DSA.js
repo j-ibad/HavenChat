@@ -21,9 +21,9 @@ class DSA {
 	 */
 	async init(keyPackage=null){
 		if(keyPackage){
-			this.p = new BigInteger(keyPackage.p);
-			this.q = new BigInteger(keyPackage.q);
-			this.g = new BigInteger(keyPackage.g);
+			this.p = new BigInteger(keyPackage.p.toString(36), 36);
+			this.q = new BigInteger(keyPackage.q.toString(36), 36);
+			this.g = new BigInteger(keyPackage.g.toString(36), 36);
 		}else{
 			// 1. Generate q 
 			this.q = await this.generatePrime();
@@ -48,10 +48,10 @@ class DSA {
 	 */
 	getKeyPackage(){
 		return {
-			p: this.p.toString(),
-			q: this.q.toString(),
-			g: this.g.toString(),
-			pu: this.pu.toString()
+			p: this.p.toString(36),
+			q: this.q.toString(36),
+			g: this.g.toString(36),
+			pu: this.pu.toString(36)
 		}
 	}
 	
@@ -80,7 +80,7 @@ class DSA {
 			s = i.multiply(h.add(r.multiply(this.pr))).mod(this.q);
 		}
 		// 5. Return signature {r, s}
-		return {r: r.toString(),s: s.toString()};  // Stringified for transport
+		return {r: r.toString(36),s: s.toString(36)};  // Stringified for transport
 	}
 	
 	
@@ -93,9 +93,9 @@ class DSA {
 	 * @return true if verified, false otherwise
 	 */
 	verify(h, pu, {r, s}){
-		pu = new BigInteger(pu.toString());
-		r = new BigInteger(r.toString());
-		s = new BigInteger(s.toString());
+		pu = new BigInteger(pu.toString(36), 36);
+		r = new BigInteger(r.toString(36), 36);
+		s = new BigInteger(s.toString(36), 36);
 		// Check if in valid range
 		if(r.compareTo(BIGINT0) <= 0 || r.compareTo(this.q) >= 0 || s.compareTo(BIGINT0) <= 0 || s.compareTo(this.q) >= 0){
 			return false;

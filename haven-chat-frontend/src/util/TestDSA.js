@@ -13,6 +13,7 @@ async function main(){
 	
 	console.log('\nConfiguring user 2');
 	let keyPkg1 = user1.getKeyPackage();
+	console.log(`keyPkg: ${JSON.stringify(keyPkg1)}`);
 	let user2 = new DSA();
 	await user2.init(keyPkg1);
 	

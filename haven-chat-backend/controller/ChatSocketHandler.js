@@ -13,11 +13,12 @@ module.exports = class ChatSocket {
 	}
 	
 	/* [===== Message handlers (Sending) =====] */
-	request(sid, user, id=0){
+	request(sid, user, signMethod=0, id=0){
 		this.socket.send(chatEvent, { 
 			name: 'request',
 			sid,
-			user
+			user,
+			signMethod
 		}, id);
 	}
 	
@@ -36,7 +37,6 @@ module.exports = class ChatSocket {
 					name: 'accept',
 					user,
 					sid,
-					signMethod: args.signMethod,
 					pubKey: args.pubKey
 				}, part.userId);
 			}
@@ -90,7 +90,7 @@ module.exports = class ChatSocket {
 				self.chat.accept(res.sid, self.user, {secret: secretKey16_enc16.toString()});
 				for(let i in data.participants){
 					ChatModel.addParticipant(res.sid, data.participants[i].id);
-					self.chat.request(res.sid, self.user, data.participants[i].id);
+					self.chat.request(res.sid, self.user, data.signMethod, data.participants[i].id);
 				}
 			}else{
 				self.error("Failed to start chat session");
@@ -112,7 +112,7 @@ module.exports = class ChatSocket {
 			let res2 = await ChatModel.getParticipants(data.sid, self.user.id);
 			self.chat.accept(data.sid, self.user, {secret: secretKey16_enc16, participants: res2.participants});
 			if(res2.status){
-				self.chat.accept(res2.sid, self.user, {participants: res2.participants, signMethod: res.signMethod, pubKey: data.pubKey});
+				self.chat.accept(res2.sid, self.user, {participants: res2.participants, pubKey: data.pubKey});
 			}
 		}else{
 			self.error("Failed to start chat session");

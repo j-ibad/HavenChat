@@ -166,7 +166,7 @@ class ChatSocket {
 			let md = forge.md.sha1.create();
 			md.update(msg, 'utf8');
 			let verified = false;
-			let sender = await this.participants.find((e)=>{return e.id == data.user.id});
+			let sender = await this.participants.find((e)=>{return e.id === data.user.id});
 			if(this.signMethod === 0){
 				verified = await sender.pubKey.verify(md.digest().bytes(), signature);
 			}

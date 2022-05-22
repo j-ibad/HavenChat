@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS ChatSession (
 	id bigint NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	secret varchar(256) NOT NULL,
 	createdDate timestamp DEFAULT CURRENT_TIMESTAMP,
-	signMethod tinyint NOT NULL DEFAULT 0
+	signMethod tinyint NOT NULL DEFAULT 0,
+	keyPkg varchar(1024) DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS ChatParticipants (
