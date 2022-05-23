@@ -13,12 +13,13 @@ module.exports = class ChatSocket {
 	}
 	
 	/* [===== Message handlers (Sending) =====] */
-	request(sid, user, signMethod=0, id=0){
+	request(sid, user, signMethod=0, id=0, keyPkg=null){
 		this.socket.send(chatEvent, { 
 			name: 'request',
 			sid,
 			user,
-			signMethod
+			signMethod,
+			keyPkg
 		}, id);
 	}
 	
@@ -82,15 +83,23 @@ module.exports = class ChatSocket {
 		if(data.sid === 0){
 			let pubKey = pki.publicKeyFromPem(data.pubKey);
 			let secretKey16 = forge.util.createBuffer(forge.random.getBytesSync(32)).toHex(); //32 bytes for AES-256
+			let signKey;
+			if(data.signMethod === 0){
+				signKey = data.pubKey;
+			}else if(data.signMethod === 1){
+				signKey = JSON.parse(data.keyPkg).pu;
+			}
+			
 			
 			let res = await ChatModel.startChat(secretKey16, data.signMethod);
 			if(res.status){
-				ChatModel.addParticipant(res.sid, self.user.id, data.pubKey, 1);
+				ChatModel.addParticipant(res.sid, self.user.id, signKey, 1);
 				let secretKey16_enc16 = forge.util.createBuffer(pubKey.encrypt(secretKey16)).toHex();
 				self.chat.accept(res.sid, self.user, {secret: secretKey16_enc16.toString()});
+				let keyPkg = (data.signMethod == 1) ? data.keyPkg : null;
 				for(let i in data.participants){
 					ChatModel.addParticipant(res.sid, data.participants[i].id);
-					self.chat.request(res.sid, self.user, data.signMethod, data.participants[i].id);
+					self.chat.request(res.sid, self.user, data.signMethod, data.participants[i].id, keyPkg);
 				}
 			}else{
 				self.error("Failed to start chat session");
@@ -103,16 +112,17 @@ module.exports = class ChatSocket {
 	
 	async handleAccept(self, data){
 		let pubKey = pki.publicKeyFromPem(data.pubKey);
+		let signKey = data.dsaKey || data.pubKey;
 		
 		let res = await ChatModel.getSecret(data.sid, self.user.id);
 		if(res.status){
-			ChatModel.activateParticipant(data.sid, self.user.id, data.pubKey);
+			ChatModel.activateParticipant(data.sid, self.user.id, signKey);
 			let secretKey16 = await res.secret;
 			let secretKey16_enc16 = await forge.util.createBuffer(pubKey.encrypt(secretKey16)).toHex();
 			let res2 = await ChatModel.getParticipants(data.sid, self.user.id);
 			self.chat.accept(data.sid, self.user, {secret: secretKey16_enc16, participants: res2.participants});
 			if(res2.status){
-				self.chat.accept(res2.sid, self.user, {participants: res2.participants, pubKey: data.pubKey});
+				self.chat.accept(res2.sid, self.user, {participants: res2.participants, pubKey: signKey});
 			}
 		}else{
 			self.error("Failed to start chat session");

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {api} from './util/api.js'
+import DSA from './util/DSA.js'
 import ChatSocket from './util/ChatSocket.js'
 import Session from './util/Session.js'
 import SessionRequired from './component/SessionRequired.js'
@@ -66,7 +67,7 @@ class SetupChatPane extends React.Component {
 			friends: [],
 			filter: "",
 			keyP: 0,
-			value: ''
+			value: 0
 		};
 
 		this.filterChangeHandler = this.filterChangeHandler.bind(this);
@@ -114,14 +115,13 @@ class SetupChatPane extends React.Component {
 	}
 
 	handleChange(event){
-		this.setState({value: event.target.value});
+		this.setState({value: parseInt(event.target.value.toString())});
 	}
 	render(){
 		return (<div>
 			<button onClick={this.startChat} disabled={(this.state.participants.length===0)}>
 				Start Chat
 			</button>
-
 
 			<form onSubmit={this.handleSubmit}>
 				<label>
@@ -153,12 +153,20 @@ class ChatPane extends React.Component {
 	constructor(props){
 		super(props);
 		let chatConfig = this.props.chatConfig;
+		ChatSocket.signMethod = chatConfig.signMethod || 0;
 		if(chatConfig.sid === 0){
-			ChatSocket.request({participants: chatConfig.participants});
+			ChatSocket.request({participants: chatConfig.participants, signMethod: chatConfig.signMethod});
 		}else{
-			console.log(chatConfig);
-			ChatSocket.signMethod = chatConfig.signMethod || 0;
-			ChatSocket.accept(chatConfig.sid);
+			if(ChatSocket.signMethod === 1){
+				if(ChatSocket.dsa === null && chatConfig.keyPkg){
+					ChatSocket.dsa = new DSA();
+					ChatSocket.dsa.init(JSON.parse(chatConfig.keyPkg)).then(()=>{
+						ChatSocket.accept(chatConfig.sid);
+					});
+				}
+			}else{
+				ChatSocket.accept(chatConfig.sid);
+			}
 		}
 		
 		this.state = {

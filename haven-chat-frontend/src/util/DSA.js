@@ -20,6 +20,7 @@ class DSA {
 	 * Uses BigInteger Arithmetic
 	 */
 	async init(keyPackage=null){
+		console.log('GENERATING NEW PUBLIC KEY PAIR');
 		if(keyPackage){
 			this.p = new BigInteger(keyPackage.p.toString(36), 36);
 			this.q = new BigInteger(keyPackage.q.toString(36), 36);
@@ -40,6 +41,8 @@ class DSA {
 		
 		// 5. Generate public key pu, such that pu = g**pr mod p
 		this.pu = this.g.modPow(this.pr,this.p);
+		
+		return this.getKeyPackage();
 	}
 	
 	/**
