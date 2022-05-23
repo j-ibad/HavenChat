@@ -8,7 +8,7 @@ import List from './component/List.js'
 import {Tab, TabContent} from './component/Tab.js';
 import './css/LiveChat.css';
 
-const DSA = require('./DSA.js');
+const DSA = require('./util/DSA.js');
 
 const friendFields = [
 	{key: 'username', header: 'Username'},
