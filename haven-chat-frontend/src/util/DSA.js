@@ -1,8 +1,8 @@
 //import forge from 'node-forge';
-const forge = require('node-forge');
-const isProbablePrime = require('./Prime.js').isProbablePrime;
-const Lock = require('./Lock.js');
-const BigInteger = require('jsbn').BigInteger;
+import forge from 'node-forge';
+import {isProbablePrime} from './Prime.js';
+import Lock from './Lock.js';
+import {BigInteger} from 'jsbn';
 
 const KEY_BIT_SIZE = 2048;
 
@@ -10,7 +10,7 @@ const BIGINT0 = new BigInteger('0');
 const BIGINT1 = new BigInteger('1');
 const BIGINT256 = new BigInteger('256');
 
-class DSA {
+export default class DSA {
 	constructor(){}
 	
 	/**
@@ -219,7 +219,3 @@ class DSA {
 		return p;
 	}
 }
-
-
-
-module.exports = DSA;

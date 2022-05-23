@@ -1,6 +1,6 @@
-const EventEmitter = require('events');
+import EventEmitter from 'events';
 
-class Lock {
+export default class Lock {
 	constructor(enabled = true){
 		this.bus = new EventEmitter();
 		this.locked = false;
@@ -35,5 +35,3 @@ class Lock {
 		this.locked = false;
 	}
 }
-
-module.exports = Lock;

@@ -1,9 +1,9 @@
 import forge from 'node-forge';
+import {BigInteger} from 'jsbn';
 
+import DSA from './DSA.js';
 import socket from './WebSocket.js';
 
-const DSA = require('./DSA.js');
-const BigInteger = require('jsbn').BigInteger;
 const rsa = forge.pki.rsa;
 const pki = forge.pki;
 const chatEvent = 'chat';

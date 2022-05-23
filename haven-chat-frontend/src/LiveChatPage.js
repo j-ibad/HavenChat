@@ -1,14 +1,13 @@
 import React from 'react';
 
-import {api} from './util/api.js'
-import ChatSocket from './util/ChatSocket.js'
-import Session from './util/Session.js'
-import SessionRequired from './component/SessionRequired.js'
-import List from './component/List.js'
+import {api} from './util/api.js';
+import DSA from './util/DSA.js';
+import ChatSocket from './util/ChatSocket.js';
+import Session from './util/Session.js';
+import SessionRequired from './component/SessionRequired.js';
+import List from './component/List.js';
 import {Tab, TabContent} from './component/Tab.js';
 import './css/LiveChat.css';
-
-const DSA = require('./util/DSA.js');
 
 const friendFields = [
 	{key: 'username', header: 'Username'},
