@@ -23,9 +23,10 @@ This Project was Generated with REACT!
 
 ## Dependencies
 The minimal versions of npm and nodejs are as follows:
+```
 npm  -  8.5.0
 nodejs  - 10.19.0
-
+```
 
 This application was developed using REACT. The following command will take care of installing the dependencies of both front-end and back-end, as well as serving the front-end and back-end components in parallel.
 
