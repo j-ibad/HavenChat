@@ -14,6 +14,7 @@ export default class LandingPage extends React.Component{
 			<header className="LandingPage-header">
 				<img src={logo} className="LandingPage-logo" alt="logo" />
 				<p> Welcome to HavenChat </p>
+				<p style={{"fontSize": "0.85em", "marginTop": "0"}}> By: Winnie Pan & Josh Ibad </p>
 				<Tab style={{width: "70%", margin: "0 10%"}} active={this.props.login}>
 					<TabContent label="Login"> <LoginForm onLogin={this.props.onLogin} session={this.props.session}/> </TabContent> 
 					<TabContent label="Register"> <RegistrationForm /> </TabContent> 

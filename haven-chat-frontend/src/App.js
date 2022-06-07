@@ -63,6 +63,7 @@ export default class App extends React.Component {
 	render(){
 		return ( <Router> <div >
 			<nav id="HC-Nav"> <ul>
+				{!this.state.session && <li> <Link to="/">Home</Link> </li>}
 				{!this.state.session && <li> <Link to="/about">About</Link> </li>}
 				
 				{this.state.session && <li> <Link to="/home">Home</Link> </li>}
